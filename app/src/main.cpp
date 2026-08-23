@@ -18,8 +18,8 @@ int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
     QGraphicsScene scene;
-    scene.addPolygon(hexagon({0, 0}, 40), QPen(Qt::black), QBrush(Qt::lightGray));
-
+    scene.addPolygon(hexagon({0, 0}, 40), QPen(Qt::black), QBrush(Qt::white));
+    scene.addPolygon(hexagon({0, 80}, 40), QPen(Qt::black), QBrush(Qt::black));
     QGraphicsView view(&scene);
     view.setRenderHint(QPainter::Antialiasing);
     view.resize(600, 600);
