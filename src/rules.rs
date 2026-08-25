@@ -29,7 +29,7 @@ fn can_slide(board: &Board, from: Position, to: Position) -> bool {
         .copied()
         .collect();
 
-    flanking.iter().any(|&p| !is_occupied(board, p))
+    flanking.iter().any(|&p| !is_occupied(p, board))
 }
 
 fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet<Position> {
@@ -53,7 +53,7 @@ fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet
     visit(occupied, start, HashSet::new())
 }
 
-fn preserves_one_hive(board: &Board, from: Position) -> bool {
+fn preserves_hive(board: &Board, from: Position) -> bool {
     // Does the hive maintain its integrity if this piece is removed from this position
     
     // Instead what if take the neighbors of the piece and make sure we can reach all the other ones 
@@ -71,14 +71,14 @@ fn preserves_one_hive(board: &Board, from: Position) -> bool {
     }
 }
 
-fn is_not_on_hive(board: &Board, from: Option<Position>, to: Position) -> bool {
+fn is_on_hive(board: &Board, to: Position, from: Option<Position>) -> bool {
     // Ensures that possible moves are still on the hive,
     // and therefore wont break the one hive rule 
 
     neighbors(to)
         .into_iter()
         .filter(|&n| Some(n) != from) // Ensure we are not counting the position we are currently on
-        .any(|n| is_occupied(board, n))
+        .any(|n| is_occupied(n, board))
 }
 
 fn neighbors(pos: Position) -> Vec<Position> {
@@ -94,9 +94,15 @@ fn neighbors(pos: Position) -> Vec<Position> {
 fn bee_moves(pos: &Position, board: &Board) -> Vec<Move> {
     /*  Iterate over all the neighbors of the piece
         valid moves are the moves where there are no neighbors */
+    if !preserves_hive(board, *pos) {
+        return Vec::<Move>::new();
+    }
+
     neighbors(*pos)
         .into_iter()
         .filter(|&candidate| !is_occupied(candidate, board))
+        .filter(|&candidate| is_on_hive(board, candidate, Some(*pos)))
+        .filter(|&candidate| can_slide(board, *pos, candidate))
         .map(|candidate| Move::Move {from: *pos, to: candidate })
         .collect()
 }
@@ -134,7 +140,10 @@ mod expect_tests {
     fn correct_bee_moves() {
         let occupied_positions = vec![
             Position {q: 1, r: 0},
-            Position {q: 0, r: -1},
+            Position {q: 1, r: 1},
+            Position {q: 0, r: 2},
+            Position {q: -1, r: 2},
+            Position {q: -1, r: 1},
         ];
         
         let board = occupied_positions.iter().fold(Board::new(), |board, &pos| {
@@ -145,10 +154,10 @@ mod expect_tests {
 
         expect![[r#"
             . . A
-             A . .
-              A A ."#]].assert_eq(&output);
+             A . ."#]].assert_eq(&output);
     }
 
+    // Everything here really should be a prop test
     #[test]
     fn removing_a_bridge_piece_breaks_the_hive() {
         let board = Board::new()
@@ -156,7 +165,16 @@ mod expect_tests {
             .place_piece(Position { q: 1, r: 0}, Piece { kind: PieceKind::Ant, owner: Player::White })
             .place_piece(Position { q: 2, r: 0}, Piece { kind: PieceKind::Ant, owner: Player::White });
         
-        assert!(!preserves_one_hive(&board, Position {q: 1, r: 0}));
-        assert!(preserves_one_hive(&board, Position {q: 2, r: 0}));
+        assert!(!preserves_hive(&board, Position {q: 1, r: 0}));
+        assert!(preserves_hive(&board, Position {q: 2, r: 0}));
+    }
+
+    #[test]
+    fn cannot_slide_through_pinched_gap() {
+        let board = Board::new()
+            .place_piece(Position { q: 1, r: 0}, Piece { kind: PieceKind::Ant, owner: Player::White })
+            .place_piece(Position { q: -1, r: 1}, Piece { kind: PieceKind::Ant, owner: Player::White });
+
+        assert!(!can_slide(&board, Position { q: 0, r: 0 }, Position { q: 0, r: 1 }));
     }
 }
