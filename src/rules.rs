@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::board::Board;
 use crate::types::*;
 
@@ -13,6 +15,51 @@ fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
 
 fn is_occupied(pos: Position, board: &Board) -> bool {
     board.stacks.get(&pos).is_some()
+}
+
+fn can_slide(board: &Board, from: Position, to: Position) -> bool {
+    // Apply the freedom to move rule - can a piece physically squeeze
+    // from one position into another 
+    true    
+}
+
+fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet<Position> {
+    fn visit(
+        occupied: &HashSet<Position>,
+        current: Position,
+        mut visited: HashSet<Position>,
+    ) -> HashSet<Position> {
+        if visited.contains(&current) {
+            return visited;
+        }
+
+        visited.insert(current);
+
+        neighbors(current)
+            .into_iter()
+            .filter(|n| occupied.contains(n))
+            .fold(visited, |acc, n| visit(occupied, n, acc))
+    }
+
+    visit(occupied, start, HashSet::new())
+}
+
+fn preserves_one_hive(board: &Board, from: Position) -> bool {
+    // Does the hive maintain its integrity if this piece is removed from this position
+    
+    // Instead what if take the neighbors of the piece and make sure we can reach all the other ones 
+    // Can we do that by maintaining a union find but not prune it... 
+
+    let remaining_pieces: HashSet<Position> = board.stacks
+        .keys()
+        .copied()
+        .filter(|&pos| pos != from)
+        .collect();
+    
+    match remaining_pieces.iter().next() {
+        None => true,
+        Some(&start) => connected_positions(&remaining_pieces, start).len() == remaining_pieces.len(),
+    }
 }
 
 fn neighbors(pos: Position) -> Vec<Position> {
@@ -81,5 +128,16 @@ mod expect_tests {
             . . A
              A . .
               A A ."#]].assert_eq(&output);
+    }
+
+    #[test]
+    fn removing_a_bridge_piece_breaks_the_hive() {
+        let board = Board::new()
+            .place_piece(Position { q: 0, r: 0}, Piece { kind: PieceKind::Ant, owner: Player::White })
+            .place_piece(Position { q: 1, r: 0}, Piece { kind: PieceKind::Ant, owner: Player::White })
+            .place_piece(Position { q: 2, r: 0}, Piece { kind: PieceKind::Ant, owner: Player::White });
+        
+        assert!(!preserves_one_hive(&board, Position {q: 1, r: 0}));
+        assert!(preserves_one_hive(&board, Position {q: 2, r: 0}));
     }
 }
