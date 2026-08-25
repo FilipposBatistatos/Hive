@@ -1,15 +1,2 @@
 # HIVE
-
-## Structure
-```sh
-hive/
-├── CMakeLists.txt
-├── engine/ 
-│   ├── CMakeLists.txt
-│   ├── include/engine/
-│   └── src/
-└── app/
-    ├── CMakeLists.txt
-    └── src/
-        └── main.cpp
-```
+Moving the project to rust for better ability to test

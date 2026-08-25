@@ -4,15 +4,15 @@ use crate::types::*;
 
 /* Board is the state of the game and the source of truth for most things */
 pub struct Board {
-    stacks: HashMap<Position, Vec<Piece>>, // Piece can stack, therefore we need a structure to handle multiple pieces in the same location
+    pub stacks: HashMap<Position, Vec<Piece>>, // Piece can stack, therefore we need a structure to handle multiple pieces in the same location
 }
 
 impl Board {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Board { stacks: HashMap::new() }
     }
 
-    fn place_piece(&self, position: Position, piece: Piece) -> Board {
+    pub fn place_piece(&self, position: Position, piece: Piece) -> Board {
         let mut new_stacks = self.stacks.clone();
         new_stacks.entry(position).or_insert_with(Vec::new).push(piece);
         Board { stacks: new_stacks }
@@ -21,7 +21,7 @@ impl Board {
 
 #[cfg(test)]
 impl Board {
-    fn snapshot(&self) -> String {
+    pub fn snapshot(&self) -> String {
         if self.stacks.is_empty() {
             return String::new();
         }    
