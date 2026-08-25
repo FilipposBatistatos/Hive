@@ -20,7 +20,11 @@ fn is_occupied(pos: Position, board: &Board) -> bool {
 fn can_slide(board: &Board, from: Position, to: Position) -> bool {
     // Apply the freedom to move rule - can a piece physically squeeze
     // from one position into another 
-    true    
+    
+    /* A piece can only "crawl" along other pieces and move between them 
+        if the gap is about to traverse does not have adjacencies */
+    
+    
 }
 
 fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet<Position> {
@@ -60,6 +64,16 @@ fn preserves_one_hive(board: &Board, from: Position) -> bool {
         None => true,
         Some(&start) => connected_positions(&remaining_pieces, start).len() == remaining_pieces.len(),
     }
+}
+
+fn is_not_on_hive(board: &Board, from: Option<Position>, to: Position) -> bool {
+    // Ensures that possible moves are still on the hive,
+    // and therefore wont break the one hive rule 
+
+    neighbors(to)
+        .into_iter()
+        .filter(|&n| Some(n) != from) // Ensure we are not counting the position we are currently on
+        .any(|n| is_occupied(board, n))
 }
 
 fn neighbors(pos: Position) -> Vec<Position> {
