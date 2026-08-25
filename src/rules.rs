@@ -8,7 +8,7 @@ use crate::types::*;
 fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
     match kind {
         PieceKind::Bee => bee_moves(pos, game.board),
-        _ => // Empty vector
+        _ => Vec<Move> {},
     }
 
 } */
@@ -19,12 +19,17 @@ fn is_occupied(pos: Position, board: &Board) -> bool {
 
 fn can_slide(board: &Board, from: Position, to: Position) -> bool {
     // Apply the freedom to move rule - can a piece physically squeeze
-    // from one position into another 
-    
-    /* A piece can only "crawl" along other pieces and move between them 
-        if the gap is about to traverse does not have adjacencies */
-    
-    
+    // between two adjacent positions
+
+    let from_neighbors: HashSet<Position> = neighbors(from).into_iter().collect();
+    let to_neighbors: HashSet<Position> = neighbors(to).into_iter().collect();
+
+    let flanking: Vec<Position> = from_neighbors 
+        .intersection(&to_neighbors)
+        .copied()
+        .collect();
+
+    flanking.iter().any(|&p| !is_occupied(board, p))
 }
 
 fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet<Position> {
