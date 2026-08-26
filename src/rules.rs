@@ -179,6 +179,37 @@ fn ant_moves(pos: &Position, board: &Board) -> Vec<Move> {
         .collect::<Vec<Move>>()
 }
 
+fn spider_moves(pos: &Position, board: &Board) -> Vec<Move> {
+    // Returns a vector of the legals moves for spider
+    if !preserves_hive(board, *pos) {
+        return Vec::<Move>::new();
+    }
+    
+    // The spider moves exactly 3 spots away from where it is in the same nature are the ant
+    fn visit(board: &Board, pos: Position, visited: HashSet<Position>, steps_remaining: u8) -> HashSet<Position> {
+        if steps_remaining == 0 {
+            return HashSet::from([pos]); // Only the final landing spot 
+        }
+        
+        neighbors(pos)
+            .into_iter()
+            .filter(|&n| !visited.contains(&n))
+            .filter(|&n| !is_occupied(n, board))
+            .filter(|&n| is_on_hive(board, n, Some(pos)))
+            .filter(|&n| can_slide(board, pos, n))
+            .fold(HashSet::new(), |acc, n| {
+                let mut next_visited = visited.clone();
+                next_visited.insert(n);
+                acc.union(&visit(board, n, next_visited, steps_remaining - 1)).copied().collect()
+            })
+    }
+    
+    visit(board, *pos, HashSet::from([*pos]), 3)
+        .into_iter()
+        .map(|candidate| Move::Move{ from: *pos, to: candidate })
+        .collect()
+}
+
 #[cfg(test)]
 mod expect_tests {
     use super::*;
@@ -252,6 +283,28 @@ mod expect_tests {
               A . . . A
                A . . A .
                 A A A . ."#]].assert_eq(&output);
+    }
+
+    #[test]
+    fn correct_spider_moves() {
+        let occupied_positions = vec![
+            Position {q: 1, r: 0},
+            Position {q: 1, r: 1},
+            Position {q: 0, r: 2},
+            Position {q: -1, r: 2},
+            Position {q: -1, r: 1},
+        ];
+        
+        let board = occupied_positions.iter().fold(Board::new(), |board, &pos| {
+            board.place_piece(pos, Piece {kind: PieceKind::Ant, owner: Player::White })
+        });
+        let moves = spider_moves(&Position {q: 0, r: 0}, &board);
+        let output = render_moves(&moves);
+
+        expect![[r#"
+            . . . . A
+             . . . . .
+              A . . . ."#]].assert_eq(&output);
     }
 
     #[test]
