@@ -147,6 +147,38 @@ fn bee_moves(pos: &Position, board: &Board) -> Vec<Move> {
         .collect()
 }
 
+fn ant_moves(pos: &Position, board: &Board) -> Vec<Move> {
+    // Returns the legal ant moves
+
+    if !preserves_hive(board, *pos) {
+        return Vec::<Move>::new();
+    }
+
+    /* The ant can crawl around with no distance limit */
+    // Generate the local bee moves,
+    // Ensure they are traversable
+    // Repeat until there are no more legal moves
+
+    fn visit(board: &Board, pos: Position, mut visited: HashSet<Position>) -> HashSet<Position> {
+        if visited.contains(&pos) {
+            return visited;
+        }
+
+        visited.insert(pos);
+        neighbors(pos)
+            .into_iter()
+            .filter(|&candidate| !is_occupied(candidate, board))
+            .filter(|&candidate| is_on_hive(board, candidate, Some(pos))) 
+            .filter(|&candidate| can_slide(board, pos, candidate))
+            .fold(visited, |acc, pos| visit(board, pos, acc))
+    }
+
+    visit(board, *pos, HashSet::<Position>::new())
+        .into_iter()
+        .map(|candidate| Move::Move {from: *pos, to: candidate})
+        .collect::<Vec<Move>>()
+}
+
 #[cfg(test)]
 mod expect_tests {
     use super::*;
@@ -196,6 +228,30 @@ mod expect_tests {
         expect![[r#"
             . . A
              A . ."#]].assert_eq(&output);
+    }
+    
+    #[test]
+    fn correct_ant_moves() {
+        let occupied_positions = vec![
+            Position {q: 1, r: 0},
+            Position {q: 1, r: 1},
+            Position {q: 0, r: 2},
+            Position {q: -1, r: 2},
+            Position {q: -1, r: 1},
+        ];
+        
+        let board = occupied_positions.iter().fold(Board::new(), |board, &pos| {
+            board.place_piece(pos, Piece {kind: PieceKind::Ant, owner: Player::White })
+        });
+        let moves = ant_moves(&Position {q: 0, r: 0}, &board);
+        let output = render_moves(&moves);
+
+        expect![[r#"
+            . . . A A
+             . A A . A
+              A . . . A
+               A . . A .
+                A A A . ."#]].assert_eq(&output);
     }
 
     #[test]
