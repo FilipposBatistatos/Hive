@@ -44,7 +44,6 @@ fn legal_placements(board: &Board, player: Player) -> HashSet<Position> {
         }
     }
 
-
     board.stacks
         .keys()
         .flat_map(|pos| neighbors(*pos))
@@ -114,11 +113,27 @@ fn preserves_hive(board: &Board, from: Position) -> bool {
 fn is_on_hive(board: &Board, to: Position, from: Option<Position>) -> bool {
     // Ensures that possible moves are still on the hive,
     // and therefore wont break the one hive rule 
-
-    neighbors(to)
-        .into_iter()
-        .filter(|&n| Some(n) != from) // Ensure we are not counting the position we are currently on
-        .any(|n| is_occupied(n, board))
+    match from {
+        None => {
+            neighbors(to)
+                .into_iter()
+                .any(|n| is_occupied(n, board))
+        } 
+        Some(from) => {
+            neighbors(from)
+                .into_iter()
+                .filter(|&n| is_occupied(n, board))
+                .flat_map(|n| neighbors(n)) 
+                .filter(|&n| !is_occupied(n, board))
+                .collect::<HashSet<Position>>()
+                .intersection(
+                    &neighbors(from)
+                        .into_iter()
+                        .collect::<HashSet<Position>>()
+                )
+                .any(|n| *n == to)
+        }
+    }
 }
 
 fn neighbors(pos: Position) -> Vec<Position> {
@@ -238,6 +253,26 @@ mod expect_tests {
             . A A
              A . A
               A A ."#]].assert_eq(&output);
+    }
+
+    #[test]
+    fn on_hive_requires_shared_neighbor() {
+        let occupied_positions = vec![
+            Position {q: 1, r: 1},
+            Position {q: 0, r: 2},
+            Position {q: -1, r: 2},
+            Position {q: -1, r: 1},
+        ];
+        
+        let board = occupied_positions.iter().fold(Board::new(), |board, &pos| {
+            board.place_piece(pos, Piece {kind: PieceKind::Ant, owner: Player::White })
+        });
+        let moves = bee_moves(&Position {q: 0, r: 0}, &board);
+        let output = render_moves(&moves);
+
+        expect![[r#"
+            A .
+             . A"#]].assert_eq(&output);
     }
 
     #[test]
