@@ -7,3 +7,5 @@ edition = "2024"
 
 [dev-dependencies]
 expect-test = "1.5.1"
+proptest = "1.11.0"
+proptest-derive = "0.8.0"

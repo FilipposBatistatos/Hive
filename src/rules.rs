@@ -273,22 +273,26 @@ mod expect_tests {
         assert!(!can_slide(&board, Position { q: 0, r: 0 }, Position { q: 0, r: 1 }));
     }
 }
-/*
+
 #[cfg(test)]
-mod proerty_tests {
+mod property_tests {
     use super::*;
     use proptest::prelude::*;
     use proptest::test_runner::TestRunner;
+    use proptest::strategy::ValueTree;
     
     fn arbitrary_board(steps: usize) -> impl Strategy<Value = Board> {
-        (0..steps).prop_fold(Just(Board::new()), |board_strategy, step| {
-            let player = if step % 2 == 0 { Player::White } else { Player::Black };
-            board_strategy.prop_flat_map(|board| {
-                let candidates: Vec<Position> = legal_place(&board, player).into_iter().collect();
+        prop::collection::vec(any::<usize>(), steps).prop_map(move |choices| {
+            choices.into_iter().enumerate().fold(Board::new(), |board, (step, choice)| {
+                let player = if step % 2 == 0 { Player::White } else { Player::Black };
+                let candidates: Vec<Position> = legal_placements(&board, player).into_iter().collect();
+                
+                if candidates.is_empty() {
+                    return board; // Nowhere is legal to place, skip this step rather than panic
+                }
 
-                prop::sample::select(candidates).prop_map(move |pos| {
-                    board.clone().place_piece(pos, Piece {kind: PieceKind::Ant, owner: player })
-                })
+                let pos = candidates[choice % candidates.len()];
+                board.place_piece(pos, Piece { kind: PieceKind::Ant, owner: player })
             })
         })
     }
@@ -316,4 +320,4 @@ mod proerty_tests {
         assert_eq!(white_count + black_count, steps, "Every step should place exactly one piece");
         assert_eq!(white_count, black_count, "Even step count should split evenly between players");
     }
-} */
+} 

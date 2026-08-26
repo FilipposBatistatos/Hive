@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::types::*;
 
 /* Board is the state of the game and the source of truth for most things */
+#[derive(Clone, Debug)]
 pub struct Board {
     pub stacks: HashMap<Position, Vec<Piece>>, // Piece can stack, therefore we need a structure to handle multiple pieces in the same location
 }
