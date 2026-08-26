@@ -120,18 +120,13 @@ fn is_on_hive(board: &Board, to: Position, from: Option<Position>) -> bool {
                 .any(|n| is_occupied(n, board))
         } 
         Some(from) => {
-            neighbors(from)
-                .into_iter()
-                .filter(|&n| is_occupied(n, board))
-                .flat_map(|n| neighbors(n)) 
-                .filter(|&n| !is_occupied(n, board))
-                .collect::<HashSet<Position>>()
-                .intersection(
-                    &neighbors(from)
-                        .into_iter()
-                        .collect::<HashSet<Position>>()
-                )
-                .any(|n| *n == to)
+            let from_neighbors: HashSet<Position> = neighbors(from).into_iter().collect();
+            let to_neighbors: HashSet<Position> = neighbors(to).into_iter().collect();
+            
+            from_neighbors.contains(&to)
+                && from_neighbors
+                    .intersection(&to_neighbors)
+                    .any(|&n| is_occupied(n, board))
         }
     }
 }
