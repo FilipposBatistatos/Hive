@@ -14,37 +14,40 @@ fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
 } */
 
 fn can_place(board: &Board, position: Position, player: Player) -> bool {
-    if board.stack.is_empty() {
+    if board.stacks.is_empty() {
         return true;
     }
 
-    !is_occupied(board, position)
+    !is_occupied(position, board)
         && is_on_hive(board, position, None)
         && !adjacent_to_opponent(board, position, player)
 }
 
-fn adjacent_to_opponent(board: &board, position: Position, player: Player) {
+fn adjacent_to_opponent(board: &Board, position: Position, player: Player) -> bool {
     neighbors(position)
         .into_iter()
-        .filter(|n| is_occupied(n, board))
-        .filter_map(|n| board.stack.get(&n))
+        .filter(|n| is_occupied(*n, board))
+        .filter_map(|n| board.stacks.get(&n))
         .filter_map(|stack| stack.last())
         .any(|piece| piece.owner != player)
 }
 
-fn legal_place(board: &Board, position: Position, player: Player) -> HashSet<Position> {
-    if board.stack.is_empty() {
+fn legal_placements(board: &Board, player: Player) -> HashSet<Position> {
+    if board.stacks.is_empty() {
         return HashSet::from([Position { q: 0, r: 0 }]); // First piece ideally placed in the origin
     }
 
-    if board.stack.len() == 1 {
+    if board.stacks.len() == 1 {
         // This is the second move and therefor, has to be adjacent to a different collor
-        return HashSet::from(neighbors(board.stack.iter().next()));
+        if let Some(&single_pos) = board.stacks.keys().next() {
+            return HashSet::from_iter(neighbors(single_pos));
+        }
     }
+
 
     board.stacks
         .keys()
-        .flat_map(|&pos| neighbors)
+        .flat_map(|pos| neighbors(*pos))
         .filter(|&candidate| can_place(board, candidate, player))
         .collect()
 }
@@ -150,6 +153,7 @@ mod expect_tests {
     use expect_test::expect;
 
     fn render_moves(moves: &[Move]) -> String {
+        // Helper function to visualise pieces on the board
         let visualised = moves.iter().fold(Board::new(), |b, mov| match mov {
             Move::Move { to, .. } => b.place_piece(*to, Piece { kind: PieceKind::Ant, owner: Player::White }),
             Move::Place { at, .. } => b.place_piece(*at, Piece { kind: PieceKind::Ant, owner: Player::White }),
@@ -194,6 +198,60 @@ mod expect_tests {
              A . ."#]].assert_eq(&output);
     }
 
+    #[test]
+    fn placing_only_with_no_enemy_neighbors() {
+        let occupied_positions = vec![
+            Position {q: 1, r: 0},
+            Position {q: 1, r: 1},
+            Position {q: 0, r: 2},
+            Position {q: -1, r: 2},
+            Position {q: -1, r: 1},
+        ];
+        
+        let board = occupied_positions.iter().enumerate().fold(Board::new(), |board, (index, &pos)| {
+            board.place_piece(pos, Piece {kind: PieceKind::Ant, owner: if index % 2 == 0 { Player::White } else { Player::Black} })
+        });
+        let placements = legal_placements(&board, Player::White)
+            .into_iter()
+            .map(|p| Move::Place {kind: PieceKind::Bee, at: p })
+            .collect::<Vec<Move>>();    
+        let output = render_moves(&placements);
+
+        expect![[r#"
+            . . . A A
+             . A A . .
+              A . . . .
+               . . . . .
+                . . A . ."#]].assert_eq(&output);
+    }
+
+    #[test]
+    fn legal_place_when_board_has_only_one_piece() {
+        let board = Board::new().place_piece(Position {q: 0, r: 0}, Piece {kind: PieceKind::Bee, owner: Player::White});
+        let placements = legal_placements(&board, Player::Black)
+            .into_iter()
+            .map(|p| Move::Place {kind: PieceKind::Bee, at: p })
+            .collect::<Vec<Move>>();
+        let output = render_moves(&placements);
+
+        expect![[r#"
+            . A A
+             A . A
+              A A ."#]].assert_eq(&output);
+    }
+
+    #[test]
+    fn legal_place_when_board_is_empty() {
+        let board = Board::new();
+        let placements = legal_placements(&board, Player::White)
+            .into_iter()
+            .map(|p| Move::Place {kind: PieceKind::Bee, at: p})
+            .collect::<Vec<Move>>();
+        let output = render_moves(&placements);
+
+        expect!["A"].assert_eq(&output);
+    }
+
     // Everything here really should be a prop test
     #[test]
     fn removing_a_bridge_piece_breaks_the_hive() {
@@ -215,3 +273,47 @@ mod expect_tests {
         assert!(!can_slide(&board, Position { q: 0, r: 0 }, Position { q: 0, r: 1 }));
     }
 }
+/*
+#[cfg(test)]
+mod proerty_tests {
+    use super::*;
+    use proptest::prelude::*;
+    use proptest::test_runner::TestRunner;
+    
+    fn arbitrary_board(steps: usize) -> impl Strategy<Value = Board> {
+        (0..steps).prop_fold(Just(Board::new()), |board_strategy, step| {
+            let player = if step % 2 == 0 { Player::White } else { Player::Black };
+            board_strategy.prop_flat_map(|board| {
+                let candidates: Vec<Position> = legal_place(&board, player).into_iter().collect();
+
+                prop::sample::select(candidates).prop_map(move |pos| {
+                    board.clone().place_piece(pos, Piece {kind: PieceKind::Ant, owner: player })
+                })
+            })
+        })
+    }
+
+    #[test]
+    fn generated_boards_have_balanced_piece_counts() {
+        let mut runner = TestRunner::default();
+        let steps = 10;
+
+        let tree = arbitrary_board(steps).new_tree(&mut runner).unwrap();
+        let board = tree.current();
+
+        let white_count = board.stacks
+            .values()
+            .flatten()
+            .filter(|piece| piece.owner == Player::White)
+            .count();
+
+        let black_count = board.stacks
+            .values()
+            .flatten()
+            .filter(|piece| piece.owner == Player::Black)
+            .count();
+        
+        assert_eq!(white_count + black_count, steps, "Every step should place exactly one piece");
+        assert_eq!(white_count, black_count, "Even step count should split evenly between players");
+    }
+} */
