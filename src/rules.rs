@@ -13,7 +13,44 @@ fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
 
 } */
 
+fn can_place(board: &Board, position: Position, player: Player) -> bool {
+    if board.stack.is_empty() {
+        return true;
+    }
+
+    !is_occupied(board, position)
+        && is_on_hive(board, position, None)
+        && !adjacent_to_opponent(board, position, player)
+}
+
+fn adjacent_to_opponent(board: &board, position: Position, player: Player) {
+    neighbors(position)
+        .into_iter()
+        .filter(|n| is_occupied(n, board))
+        .filter_map(|n| board.stack.get(&n))
+        .filter_map(|stack| stack.last())
+        .any(|piece| piece.owner != player)
+}
+
+fn legal_place(board: &Board, position: Position, player: Player) -> HashSet<Position> {
+    if board.stack.is_empty() {
+        return HashSet::from([Position { q: 0, r: 0 }]); // First piece ideally placed in the origin
+    }
+
+    if board.stack.len() == 1 {
+        // This is the second move and therefor, has to be adjacent to a different collor
+        return HashSet::from(neighbors(board.stack.iter().next()));
+    }
+
+    board.stacks
+        .keys()
+        .flat_map(|&pos| neighbors)
+        .filter(|&candidate| can_place(board, candidate, player))
+        .collect()
+}
+
 fn is_occupied(pos: Position, board: &Board) -> bool {
+    // Returns whether a position on the board contains a piece
     board.stacks.get(&pos).is_some()
 }
 
@@ -33,6 +70,7 @@ fn can_slide(board: &Board, from: Position, to: Position) -> bool {
 }
 
 fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet<Position> {
+    // Part of preserves hive executing the DFS to ensure that every piece is reachable
     fn visit(
         occupied: &HashSet<Position>,
         current: Position,
@@ -55,9 +93,8 @@ fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet
 
 fn preserves_hive(board: &Board, from: Position) -> bool {
     // Does the hive maintain its integrity if this piece is removed from this position
-    
-    // Instead what if take the neighbors of the piece and make sure we can reach all the other ones 
-    // Can we do that by maintaining a union find but not prune it... 
+    // Uses DFS to ensure that all the pieces are connected with each other 
+    // TODO: Evaluate performance bottle neck of this approach    
 
     let remaining_pieces: HashSet<Position> = board.stacks
         .keys()
@@ -82,6 +119,7 @@ fn is_on_hive(board: &Board, to: Position, from: Option<Position>) -> bool {
 }
 
 fn neighbors(pos: Position) -> Vec<Position> {
+    // Returns the axial coordinates for the positions of all the neighoring cells
     let directions = vec![(0, 1), (1, -1), (1, 0), (0, -1), (-1, 1), (-1, 0)];
 
     directions
@@ -92,8 +130,7 @@ fn neighbors(pos: Position) -> Vec<Position> {
 }
 
 fn bee_moves(pos: &Position, board: &Board) -> Vec<Move> {
-    /*  Iterate over all the neighbors of the piece
-        valid moves are the moves where there are no neighbors */
+    // Returns the legal moves for the bee piece
     if !preserves_hive(board, *pos) {
         return Vec::<Move>::new();
     }
