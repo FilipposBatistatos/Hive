@@ -56,8 +56,8 @@ fn piece_symbol(piece: &Piece) -> char {
     let letter = match piece.kind {
         PieceKind::Bee => 'q',
         PieceKind::Ant => 'a',
-        PieceKind::Grasshopper => 'g',
-        PieceKind::Beetle => 'b',
+        /*PieceKind::Grasshopper => 'g',
+        PieceKind::Beetle => 'b', */
         PieceKind::Spider => 's',
     };
 
@@ -76,14 +76,14 @@ mod expect_tests {
     #[test]
     fn renders_three_pieces_staggered() {
         let board = Board::new()
-            .place_piece(Position { q: 2, r: 0}, Piece {kind: PieceKind::Grasshopper, owner: Player::White})
+            .place_piece(Position { q: 2, r: 0}, Piece {kind: PieceKind::Spider, owner: Player::White})
             .place_piece(Position { q: 0, r: 2}, Piece {kind: PieceKind::Ant, owner: Player::Black})
-            .place_piece(Position { q: -1, r: 0}, Piece {kind: PieceKind::Beetle, owner: Player::White});
+            .place_piece(Position { q: -1, r: 0}, Piece {kind: PieceKind::Bee, owner: Player::White});
         
         let to_string = board.snapshot();
 
         expect![[r#"
-            B . . G
+            Q . . S
              . . . .
               . a . ."#]].assert_eq(&to_string);
     }
