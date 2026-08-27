@@ -77,9 +77,12 @@ fn is_occupied(pos: Position, board: &Board) -> bool {
 fn can_slide(board: &Board, from: Position, to: Position) -> bool {
     // Apply the freedom to move rule - can a piece physically squeeze
     // between two adjacent positions
-
-    let from_neighbors: HashSet<Position> = neighbors(from).into_iter().collect();
-    let to_neighbors: HashSet<Position> = neighbors(to).into_iter().collect();
+    let from_neighbors: HashSet<Position> = neighbors(from)
+        .into_iter()
+        .collect();
+    let to_neighbors: HashSet<Position> = neighbors(to)
+        .into_iter()
+        .collect();
 
     let flanking: Vec<Position> = from_neighbors 
         .intersection(&to_neighbors)
@@ -160,6 +163,10 @@ fn neighbors(pos: Position) -> Vec<Position> {
     // Because there is no ; this is the return value, so we never mutate directions
 }
 
+fn stack_height(board: &Board, pos: &Position) -> usize {
+    board.stacks.get(&pos).map_or(0, |stack| stack.len())
+}
+
 fn bee_moves(pos: &Position, board: &Board) -> Vec<Move> {
     // Returns the legal moves for the bee piece
     if !preserves_hive(board, *pos) {
@@ -235,6 +242,20 @@ fn spider_moves(pos: &Position, board: &Board) -> Vec<Move> {
     visit(board, *pos, HashSet::from([*pos]), 3)
         .into_iter()
         .map(|candidate| Move::Move{ from: *pos, to: candidate })
+        .collect()
+}
+
+fn beetle_moves(pos: &Position, board: &Board) -> Vec<Move> {
+    // Hive preservation only applies on ground level
+    if stack_height(board, pos) == 1 && !preserves_hive(board, *pos) {
+        return vec![];
+    }
+
+    neighbors(*pos)
+        .into_iter()
+        .filter(|p| is_on_hive(board, *p, Some(*pos)) || is_occupied(*p, board))
+        .filter(|p| can_slide(board, *p, *pos) || stack_height(board, pos) <= stack_height(board, p)) 
+        .map(|p| Move::Move { from: *pos, to: p})
         .collect()
 }
 

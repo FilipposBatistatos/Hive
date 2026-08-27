@@ -114,6 +114,29 @@ fn correct_spider_moves() {
 }
 
 #[test]
+fn correct_beetle_moves() {
+    let occupied_positions = vec![
+        Position {q: 0, r: 0},
+        Position {q: 1, r: 0},
+        Position {q: 1, r: 1},
+        Position {q: 0, r: 2},
+        Position {q: -1, r: 2},
+        Position {q: -1, r: 1},
+    ];
+    
+    let board = occupied_positions.iter().fold(Board::new(), |board, &pos| {
+        board.place_piece(pos, Piece {kind: PieceKind::Ant, owner: Player::White })
+    });
+    let moves = beetle_moves(&Position {q: 0, r: 0}, &board);
+    let output = render_moves(&moves);
+
+    expect![[r#"
+        . . A
+         A . A
+          A . ."#]].assert_eq(&output);
+}
+
+#[test]
 fn placing_only_with_no_enemy_neighbors() {
     let occupied_positions = vec![
         Position {q: 1, r: 0},
