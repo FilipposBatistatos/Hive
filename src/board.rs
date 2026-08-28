@@ -18,6 +18,27 @@ impl Board {
         new_stacks.entry(position).or_insert_with(Vec::new).push(piece);
         Board { stacks: new_stacks }
     }
+    
+    pub fn remove_piece(&self, position: Position) -> Board {
+        let mut new_stacks = self.stacks.clone();
+        if let Some(stack) = new_stacks.get_mut(&position) {
+            stack.pop();
+            if stack.is_empty() {
+                new_stacks.remove(&position);
+            }
+        }
+        
+        Board { stacks: new_stacks }
+    }
+    
+    pub fn move_piece(&self, from: Position, to: Position) -> Board {
+        let piece = *self.stacks
+            .get(&from)
+            .and_then(|stack| stack.last())
+            .expect("move_piece called on an empty or missing position");
+
+        self.remove_piece(from).place_piece(to, piece)
+    }
 }
 
 #[cfg(test)]
@@ -72,7 +93,6 @@ mod expect_tests {
     use super::*;
     use expect_test::expect;
 
-
     #[test]
     fn renders_three_pieces_staggered() {
         let board = Board::new()
@@ -86,5 +106,29 @@ mod expect_tests {
             Q . . S
              . . . .
               . a . ."#]].assert_eq(&to_string);
+    }
+
+    #[test]
+    fn correctly_removes_piece() {
+        let board = Board::new()
+            .place_piece(Position { q: 0, r: 0}, Piece {kind: PieceKind::Spider, owner: Player::White})
+            .place_piece(Position { q: 1, r: 0}, Piece {kind: PieceKind::Ant, owner: Player::Black})
+            .remove_piece(Position {q: 1, r: 0});
+        
+        let to_string = board.snapshot();
+
+        expect!["S"].assert_eq(&to_string);
+    }
+
+    #[test]
+    fn correctly_moves_piece() {
+        let board = Board::new()
+            .place_piece(Position { q: 0, r: 0}, Piece {kind: PieceKind::Spider, owner: Player::White})
+            .place_piece(Position { q: 1, r: 0}, Piece {kind: PieceKind::Ant, owner: Player::Black})
+            .move_piece(Position {q: 1, r: 0}, Position {q: -1, r: 0});
+        
+        let to_string = board.snapshot();
+
+        expect!["a S"].assert_eq(&to_string);
     }
 }

@@ -275,7 +275,7 @@ const PIECE_KINDS: [PieceKind; 5] = [
 ];
 
 fn arbitrary_board(steps: usize) -> impl Strategy<Value = Board> {
-    prop::collection::vec(any::<usize>(), steps).prop_map(move |choices| {
+    prop::collection::vec((any::<usize>(), any::<usize>()), steps).prop_map(move |choices| {
         choices.into_iter().enumerate().fold(Board::new(), |board, (step, (pos_choice, kind_choice))| {
             let player = if step % 2 == 0 { Player::White } else { Player::Black };
             let candidates: Vec<Position> = legal_placements(&board, player).into_iter().collect();

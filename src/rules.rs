@@ -33,6 +33,13 @@ fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
     vec![]
 }
 
+// fn apply_move(state: &GameState, mv: Move) -> GameState {
+//     let new_board = match mv {
+//         Move::Place {kind, at} => state.board.place_piece(at, Piece { kind, owner: state.turn }),
+//         Move::Move {from, to} => state.board.move_piece(from, to),
+//     }
+// }
+
 fn can_place(board: &Board, position: Position, player: Player) -> bool {
     if board.stacks.is_empty() {
         return true;
