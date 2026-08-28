@@ -94,7 +94,7 @@ mod expect_tests {
     use expect_test::expect;
 
     #[test]
-    fn renders_three_pieces_staggered() {
+    fn places_three_pieces_staggered() {
         let board = Board::new()
             .place_piece(Position { q: 2, r: 0}, Piece {kind: PieceKind::Spider, owner: Player::White})
             .place_piece(Position { q: 0, r: 2}, Piece {kind: PieceKind::Ant, owner: Player::Black})

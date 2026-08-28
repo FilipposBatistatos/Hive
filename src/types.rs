@@ -27,6 +27,13 @@ pub struct GameState {
     pub unplaced: HashMap<Player, Vec<PieceKind>>,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum GameResult {
+    Win(Player),
+    Draw,
+}
+
+
 pub enum Move {
     Place { kind: PieceKind, at: Position },
     Move { from: Position, to: Position},
