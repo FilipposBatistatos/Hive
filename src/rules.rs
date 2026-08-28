@@ -26,6 +26,8 @@ fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
             PieceKind::Bee => bee_moves(pos, &game.board),
             PieceKind::Ant => ant_moves(pos, &game.board),
             PieceKind::Spider => spider_moves(pos, &game.board),
+            PieceKind::Beetle => beetle_moves(pos, &game.board),
+            PieceKind::Grasshopper => grasshopper_moves(pos, &game.board),
         };
     }
     vec![]

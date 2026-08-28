@@ -56,8 +56,8 @@ fn piece_symbol(piece: &Piece) -> char {
     let letter = match piece.kind {
         PieceKind::Bee => 'q',
         PieceKind::Ant => 'a',
-        /*PieceKind::Grasshopper => 'g',
-        PieceKind::Beetle => 'b', */
+        PieceKind::Grasshopper => 'g',
+        PieceKind::Beetle => 'b',
         PieceKind::Spider => 's',
     };
 

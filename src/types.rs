@@ -7,7 +7,7 @@ use crate::board::Board;
 pub struct Position { pub q: i32, pub r: i32 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum PieceKind { Bee, Spider, /*Beetle, Grasshopper,*/ Ant }
+pub enum PieceKind { Bee, Spider, Beetle, Grasshopper, Ant }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Player { White, Black }
