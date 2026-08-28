@@ -74,22 +74,20 @@ fn is_occupied(pos: Position, board: &Board) -> bool {
     board.stacks.get(&pos).is_some()
 }
 
-fn can_slide(board: &Board, from: Position, to: Position) -> bool {
-    // Apply the freedom to move rule - can a piece physically squeeze
-    // between two adjacent positions
-    let from_neighbors: HashSet<Position> = neighbors(from)
-        .into_iter()
-        .collect();
-    let to_neighbors: HashSet<Position> = neighbors(to)
-        .into_iter()
-        .collect();
+fn flanking_positions(a: Position, b: Position) -> HashSet<Position> {
+    let a_neighbors: HashSet<Position> = neighbors(a).into_iter().collect();
+    let b_neighbors: HashSet<Position> = neighbors(b).into_iter().collect();
 
-    let flanking: Vec<Position> = from_neighbors 
-        .intersection(&to_neighbors)
-        .copied()
-        .collect();
+    a_neighbors.intersection(&b_neighbors).copied().collect()
+}
 
-    flanking.iter().any(|&p| !is_occupied(p, board))
+fn can_slide(board: &Board, from: Position, to: Position, piece_height: usize) -> bool {
+    // Apply the freedom to move rule: a gap is passable if at least one of the 
+    // flanking positions are shorter or empty than the height of the piece passing through
+    
+    flanking_positions(from, to)
+        .iter()
+        .any(|&p| stack_height(board, &p) < piece_height)
 }
 
 fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet<Position> {
@@ -177,7 +175,7 @@ fn bee_moves(pos: &Position, board: &Board) -> Vec<Move> {
         .into_iter()
         .filter(|&candidate| !is_occupied(candidate, board))
         .filter(|&candidate| is_on_hive(board, candidate, Some(*pos)))
-        .filter(|&candidate| can_slide(board, *pos, candidate))
+        .filter(|&candidate| can_slide(board, *pos, candidate, 1))
         .map(|candidate| Move::Move {from: *pos, to: candidate })
         .collect()
 }
@@ -204,7 +202,7 @@ fn ant_moves(pos: &Position, board: &Board) -> Vec<Move> {
             .into_iter()
             .filter(|&candidate| !is_occupied(candidate, board))
             .filter(|&candidate| is_on_hive(board, candidate, Some(pos))) 
-            .filter(|&candidate| can_slide(board, pos, candidate))
+            .filter(|&candidate| can_slide(board, pos, candidate, 1))
             .fold(visited, |acc, pos| visit(board, pos, acc))
     }
 
@@ -231,7 +229,7 @@ fn spider_moves(pos: &Position, board: &Board) -> Vec<Move> {
             .filter(|&n| !visited.contains(&n))
             .filter(|&n| !is_occupied(n, board))
             .filter(|&n| is_on_hive(board, n, Some(pos)))
-            .filter(|&n| can_slide(board, pos, n))
+            .filter(|&n| can_slide(board, pos, n, 1))
             .fold(HashSet::new(), |acc, n| {
                 let mut next_visited = visited.clone();
                 next_visited.insert(n);
@@ -254,7 +252,7 @@ fn beetle_moves(pos: &Position, board: &Board) -> Vec<Move> {
     neighbors(*pos)
         .into_iter()
         .filter(|p| is_on_hive(board, *p, Some(*pos)) || is_occupied(*p, board))
-        .filter(|p| can_slide(board, *p, *pos) || stack_height(board, pos) <= stack_height(board, p)) 
+        .filter(|p| can_slide(board, *p, *pos, stack_height(board, pos)) || stack_height(board, p) >= stack_height(board, pos)) 
         .map(|p| Move::Move { from: *pos, to: p})
         .collect()
 }
