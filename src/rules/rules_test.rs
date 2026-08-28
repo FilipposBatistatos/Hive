@@ -137,6 +137,29 @@ fn correct_beetle_moves() {
 }
 
 #[test]
+fn correct_grasshopper_moves() {
+    let occupied_positions = vec![
+        Position {q: 1, r: 0},
+        Position {q: 1, r: 1},
+        Position {q: 0, r: 2},
+        Position {q: -1, r: 2},
+        Position {q: -1, r: 1},
+        Position {q: -1, r: 0},
+    ];
+    
+    let board = occupied_positions.iter().fold(Board::new(), |board, &pos| {
+        board.place_piece(pos, Piece {kind: PieceKind::Ant, owner: Player::White })
+    });
+    let moves = grasshopper_moves(&Position {q: 0, r: 0}, &board);
+    let output = render_moves(&moves);
+
+    expect![[r#"
+        A . . . A
+         . . . . .
+          A . . . ."#]].assert_eq(&output);
+}
+
+#[test]
 fn complex_beetle_moves() {
     let occupied_positions = vec![
         // Double stacked pieces

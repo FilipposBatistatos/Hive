@@ -257,5 +257,27 @@ fn beetle_moves(pos: &Position, board: &Board) -> Vec<Move> {
         .collect()
 }
 
+fn grasshopper_moves(pos: &Position, board: &Board) -> Vec<Move> {
+    // Grasshopper moves in straight lines jumping over pieces
+    if !preserves_hive(board, *pos) {
+        return vec![];
+    }
+
+    fn jump(board: &Board, pos: Position, direction: (i32, i32)) -> Position {
+        let next = Position { q: pos.q + direction.0, r: pos.r + direction.1 };
+        if is_occupied(next, board) {
+            return jump(board, next, direction);
+        }
+        return next;
+    }
+
+    neighbors(*pos)
+        .into_iter()
+        .filter(|p| is_occupied(*p, board))
+        .map(|p| jump(board, *pos, (p.q - pos.q, p.r - pos.r)))
+        .map(|p| Move::Move { from: *pos, to: p})
+        .collect()
+}
+
 #[cfg(test)]
 mod rules_test;
