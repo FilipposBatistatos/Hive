@@ -241,9 +241,6 @@ fn legal_place_when_board_is_empty() {
     expect!["A"].assert_eq(&output);
 }
 
-#[test]
-fn 
-
 // Everything here really should be a prop test
 #[test]
 fn removing_a_bridge_piece_breaks_the_hive() {

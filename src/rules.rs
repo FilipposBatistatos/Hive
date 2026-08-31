@@ -3,13 +3,13 @@ use std::collections::HashSet;
 use crate::board::Board;
 use crate::types::*;
 
-fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
+pub fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
     // Generates legal moves based on the selected piece
     
     // If the bee is not placed you cannot move anything
     if !game.unplaced[&game.turn]
-        .iter()
-        .any(|n| *n == PieceKind::Bee) {
+        .contains_key(&PieceKind::Bee)
+    {
             return vec![];                
     }
 
@@ -48,7 +48,7 @@ fn can_place(board: &Board, position: Position, player: Player) -> bool {
         && !adjacent_to_opponent(board, position, player)
 }
 
-fn adjacent_to_opponent(board: &Board, position: Position, player: Player) -> bool {
+pub fn adjacent_to_opponent(board: &Board, position: Position, player: Player) -> bool {
     neighbors(position)
         .into_iter()
         .filter(|n| is_occupied(*n, board))
@@ -57,7 +57,7 @@ fn adjacent_to_opponent(board: &Board, position: Position, player: Player) -> bo
         .any(|piece| piece.owner != player)
 }
 
-fn legal_placements(board: &Board, player: Player) -> HashSet<Position> {
+pub fn legal_placements(board: &Board, player: Player) -> HashSet<Position> {
     if board.stacks.is_empty() {
         return HashSet::from([Position { q: 0, r: 0 }]); // First piece ideally placed in the origin
     }
@@ -76,7 +76,7 @@ fn legal_placements(board: &Board, player: Player) -> HashSet<Position> {
         .collect()
 }
 
-fn is_occupied(pos: Position, board: &Board) -> bool {
+pub fn is_occupied(pos: Position, board: &Board) -> bool {
     // Returns whether a position on the board contains a piece
     board.stacks.get(&pos).is_some()
 }
@@ -157,7 +157,7 @@ fn is_on_hive(board: &Board, to: Position, from: Option<Position>) -> bool {
     }
 }
 
-fn neighbors(pos: Position) -> Vec<Position> {
+pub fn neighbors(pos: Position) -> Vec<Position> {
     // Returns the axial coordinates for the positions of all the neighoring cells
     let directions = vec![(0, 1), (1, -1), (1, 0), (0, -1), (-1, 1), (-1, 0)];
 
