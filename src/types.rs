@@ -21,20 +21,14 @@ pub struct Piece {
 
 /* Game state is the structure from which the game engine will be able to determine legal moves
 and the solver will be able to effectively solve the game */
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, clone)]
 pub struct GameState {
     pub board: Board,
     pub turn: Player,
-    pub turn_number: u32,
-    pub unplaced: HashMap<Player, HashMap<PieceKind, u8>>,
-    pub result: Option<GameResult>
+    pub unplaced: HashMap<Player, Vec<PieceKind>>,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum GameResult {
-    Win(Player),
-    Draw,
-}
+#[derive]
 
 pub enum Move {
     Place { kind: PieceKind, at: Position },
