@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, div)
+import Html exposing (Html, div, text)
 import Html.Attributes exposing (style)
 import Svg exposing (Svg, svg, polygon, g)
 import Svg.Attributes exposing (viewBox, points, fill, stroke, width, height, transform, preserveAspectRatio)
@@ -9,12 +9,20 @@ import Svg.Events
 
 
 type alias Model =
-    { selectedHex : Maybe ( Int, Int ) }
+    { selectedHex : Maybe ( Int, Int ) 
+    , currentPlayer : Player
+    , turnNumber : Int
+    }
 
+type Player 
+    = White | Black
 
 init : Model
 init =
-    { selectedHex = Nothing }
+    { selectedHex = Nothing
+    , currentPlayer = White 
+    , turnNumber = 1
+    }
 
 
 type Msg
@@ -31,8 +39,39 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ style "position" "relative", style "width" "100vw", style "height" "100vh" ]
-        [ boardView model ]
+        [ boardView model 
+        , topRightInfo model
+        ]
 
+topRightInfo : Model -> Html Msg
+topRightInfo model = 
+    div 
+        [ style "position" "fixed"
+        , style "top" "16px"
+        , style "right" "16px"
+        , style "background" "white"
+        , style "border" "1px solid #ddd"
+        , style "border-radius" "12px"
+        , style "padding" "12x 24px"
+        , style "display" "flex"
+        , style "gap" "32px"
+        ]
+        [ infoColumn "Player" (playerLabel model.currentPlayer)
+        , infoColumn "Turn" (String.fromInt model.turnNumber)
+        ]
+
+infoColumn : String -> String -> Html Msg
+infoColumn label value = 
+    div [ style "text-align" "center" ]
+        [ div [ style "color" "#888", style "font-size" "14px" ] [ text label ]
+        , div [ style "font-weight" "bold" ] [ text value ]
+        ]
+
+playerLabel : Player -> String
+playerLabel player = 
+    case player of 
+        White -> "White"
+        Black -> "Black"
 
 boardView : Model -> Html Msg
 boardView model =
