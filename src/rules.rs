@@ -33,62 +33,10 @@ fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
     vec![]
 }
 
-fn apply_move(state: &GameState, mv: Move) -> GameState {
-    let new_board = match mv {
-        Move::Place {kind, at} => state.board.place_piece(at, Piece { kind, owner: state.turn }),
-        Move::Move {from, to} => state.board.move_piece(from, to),
-    };
-
-    let new_unplaced = mv {
-        Move::Place { kind, .. } => {
-            let mut unplaced = state.unplaced.clone();
-            if let Some(hand) = unplaced.get_mut(&state.turn) {
-                hand.retain(|&k| k != kind);
-            }
-            unplaced
-        }
-        Move::Move { .. } => state.unplaced.clone(),
-    };
-    
-    GameState {
-        board: new_board,
-        turn: opposite(state.turn),
-        unplaced: new_unplaced,
-    }
-}
-
-fn is_surrounded(board: &Board, pos: Position) -> bool {
-    neighbors(pos)
-        .into_iter()
-        .filter(|&p| is_occupied(p, board))
-        .count() == 6
-}
-
-fn is_game_over(board: &Board, pos: Position) -> Option<Player> {
-    // Collect the neighbors of the piece that was just move/placed
-    let candidate_positions: Vec<Position> = neighbors(pos)
-        .into_iter()
-        .chain(std::iter::once(pos))
-        .collect();
-        
-    // Collect the players who's bees are surrounded
-    let surrounded_bee_owner: Vec<Player> = neighbors(pos)
-        .into_iter()
-        .filter(|&pos| is_surrounded(board,pos)) // Find pos that are surrounded
-        .filter_map(|pos| board.stacks.get(&pos)) // Get the stacks from those positions
-        .flat_map(|stack| stack.iter()) // Flatten the stack so we can see all the pieces present
-        .filter(|piece| piece.kind == PieceKind::Bee) // Check for bees
-        .map(|piece| piece.owner) // Get the bee owner
-        .collect();
-        
-
-    match (surrounded_bee_owners.contains(&Player::White), surrounded_bee_owners.contains(&Player::Black)) {
-        (true, true) => Some(GameResult::Draw),
-        (true, false) => Some(GameResult::Win(Player::White)),
-        (false, true) => Some(GameResule::Win(Player::Black)),
-        (false, false) => None,
-    }
-}
+/*
+This a function to collect all the 
+fn all_legal_move() -> Vec<Move>
+*/
 
 fn can_place(board: &Board, position: Position, player: Player) -> bool {
     if board.stacks.is_empty() {
