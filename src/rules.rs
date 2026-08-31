@@ -65,23 +65,27 @@ fn is_surrounded(board: &Board, pos: Position) -> bool {
 }
 
 fn is_game_over(board: &Board, pos: Position) -> Option<Player> {
+    // Collect the neighbors of the piece that was just move/placed
     let candidate_positions: Vec<Position> = neighbors(pos)
         .into_iter()
         .chain(std::iter::once(pos))
         .collect();
         
+    // Collect the players who's bees are surrounded
     let surrounded_bee_owner: Vec<Player> = neighbors(pos)
         .into_iter()
-        .filter_map(|p| board.stacks.get(&p).and_then(|stack| stack.last()).map(|piece| (pos, piece))
-        .filter(|(_, piece)| piece.kind == PieceKind::Bee)
-        .filter(|(p, _)| is_surrounded(board, *p))
-        .map(|piece| piece.owner)
+        .filter(|&pos| is_surrounded(board,pos)) // Find pos that are surrounded
+        .filter_map(|pos| board.stacks.get(&pos)) // Get the stacks from those positions
+        .flat_map(|stack| stack.iter()) // Flatten the stack so we can see all the pieces present
+        .filter(|piece| piece.kind == PieceKind::Bee) // Check for bees
+        .map(|piece| piece.owner) // Get the bee owner
         .collect();
+        
 
     match (surrounded_bee_owners.contains(&Player::White), surrounded_bee_owners.contains(&Player::Black)) {
         (true, true) => Some(GameResult::Draw),
-        (true, false) => Some(GameResult::Win(Player::White),
-        (false, true) => Some(GameResule::Win(Player::Black),
+        (true, false) => Some(GameResult::Win(Player::White)),
+        (false, true) => Some(GameResule::Win(Player::Black)),
         (false, false) => None,
     }
 }
