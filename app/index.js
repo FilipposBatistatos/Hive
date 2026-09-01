@@ -6,7 +6,7 @@ async function main() {
 
     app.ports.requestNewGame.subscribe(() => {
         const result = new_game();
-        console.log("raw wasm json:", JSON.stringify(result));
+        //console.log("raw wasm json:", JSON.stringify(result));
         app.ports.receiveInitialState.send(result);
     });
 

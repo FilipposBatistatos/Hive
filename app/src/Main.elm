@@ -59,6 +59,7 @@ type Move
     = Place PieceKind Position
     | MovePiece Position Position
 
+
 -- MODEL
 
 type alias Model =
@@ -281,12 +282,23 @@ renderHex model pos =
         isLegalPlacement =
             List.member pos model.legalPlacements
 
+        isClickable = 
+            case model.selectedHandPiece of 
+                Just _ -> 
+                    isLegalPlacement
+
+                Nothing -> 
+                    True
+
+        cursorStyle = 
+            if isClickable then 
+                Svg.Attributes.style "cursor: pointer;"
+            else
+                Svg.Attributes.style "cursor: default;"
+
         hexFill =
             case pieceHere of
                 Just piece -> 
-                    let
-                        _ = Debug.log "piece owner" piece.owner
-                    in
                     pieceColor piece.owner
                 
                 Nothing ->
@@ -296,28 +308,36 @@ renderHex model pos =
                         "#d4f0d9" -- lighter green: "you could place here", distinct from "selected"
                     else
                         "white"
-    in
-    g [ transform ("translate(" ++ String.fromFloat x ++ "," ++ String.fromFloat y ++ ")") ]
-        (polygon
+        
+        baseAttrs = 
             [ points (hexPoints 0 0 38)
             , fill hexFill
             , stroke "#ddd"
-            , Svg.Events.onClick (ClickedHex pos)
+            , cursorStyle
             ]
-            []
-            :: (case pieceHere of
-                    Just piece ->
-                        [ Svg.text_
-                            [ Svg.Attributes.textAnchor "middle"
-                            , Svg.Attributes.dominantBaseline "central"
-                            , Svg.Attributes.fontSize "28"
-                            ]
-                            [ Svg.text (pieceGlyph piece.kind) ]
-                        ]
 
-                    Nothing ->
-                        []
-               )
+        attrs = 
+            if isClickable then 
+                baseAttrs ++ [ Svg.Events.onClick ( ClickedHex pos ) ]
+            else
+                baseAttrs
+
+    in
+    g [ transform ("translate(" ++ String.fromFloat x ++ "," ++ String.fromFloat y ++ ")") ]
+        (polygon attrs []
+            :: (case pieceHere of 
+                Just piece ->
+                    [ Svg.text_
+                        [ Svg.Attributes.textAnchor "middle"
+                        , Svg.Attributes.dominantBaseline "central"
+                        , Svg.Attributes.fontSize "28"
+                        ]
+                        [ Svg.text (pieceGlyph piece.kind) ]
+                    ]
+
+                Nothing ->
+                    []
+            )
         )
 
 lookupStack : Board -> Position -> Maybe (List Piece)
