@@ -15,6 +15,8 @@ port requestNewGame : () -> Cmd msg
 port receiveInitialState : (Decode.Value -> msg) -> Sub msg
 port requestLegalPlacements : Decode.Value -> Cmd msg
 port receiveLegalPlacements : (Decode.Value -> msg) -> Sub msg
+port requestApplyMove : ( Decode.Value, Decode.Value ) -> Cmd msg
+port receiveNewState : ( Decode.Value -> msg ) -> Sub msg
 
 -- TYPES
 
@@ -53,6 +55,9 @@ type alias GameState =
     , result : Maybe GameResult
     }
 
+type Move 
+    = Place PieceKind Position
+    | MovePiece Position Position
 
 -- MODEL
 
@@ -83,12 +88,19 @@ type Msg
     | ClickedNewGame
     | GotInitialState Decode.Value
     | GotLegalPlacements Decode.Value
+    | GotNewState Decode.Value
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickedHex pos ->
-            ( { model | selectedHex = Just pos }, Cmd.none )
+            case ( model.gameState, model.selectedHandPiece ) of
+                ( Just state, Just kind ) -> 
+                    ( model
+                    , requestApplyMove ( encodeGameState state, encodeMove (Place kind pos) )
+                    )   
+                _ -> 
+                    ( { model | selectedHex = Just pos }, Cmd.none )
 
         ClickedHandPiece kind ->
             case model.gameState of
@@ -117,12 +129,27 @@ update msg model =
 
                 Err error ->
                     ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
+        
+        GotNewState value -> 
+            case Decode.decodeValue gameStateDecoder value of
+                Ok state ->
+                    ( { model
+                        | gameState = Just state
+                        , selectedHex = Nothing
+                        , selectedHandPiece = Nothing
+                        , legalPlacements = []
+                        }
+                    , Cmd.none 
+                    )
+                Err error -> 
+                    ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ receiveInitialState GotInitialState
         , receiveLegalPlacements GotLegalPlacements
+        , receiveNewState GotNewState
         ]
 
 -- VIEW
@@ -502,6 +529,27 @@ gameResultDecoder =
         ]
 
 -- ENCODERS
+
+encodeMove : Move -> Encode.Value
+encodeMove move = 
+    case move of
+        Place kind pos ->
+            Encode.object
+                [ ( "Place" 
+                  , Encode.object
+                    [ ( "kind", encodePieceKind kind )
+                    , ( "at", encodePosition pos)
+                    ]
+                )]
+        MovePiece from to ->
+            Encode.object
+                [ ( "Move"
+                    , Encode.object
+                        [ ( "from", encodePosition from)
+                        , ( "to", encodePosition to)
+                        ]
+                    )
+                ]
 
 encodeGameState : GameState -> Encode.Value
 encodeGameState state = 
