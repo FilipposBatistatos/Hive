@@ -1,21 +1,32 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
 import Html exposing (Html, div, text, button)
 import Html.Attributes exposing (style)
+import Html.Events
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Svg exposing (Svg, svg, polygon, g)
 import Svg.Attributes exposing (viewBox, points, fill, stroke, width, height, transform, preserveAspectRatio)
 import Svg.Events
-import Html.Events
 
+port requestNewGame : () -> Cmd msg
+port receiveInitialState : (Decode.Value -> msg) -> Sub msg
 
 type alias Model =
     { selectedHex : Maybe ( Int, Int ) 
     , selectedHandPiece : Maybe PieceKind
     , currentPlayer : Player
     , turnNumber : Int
+    , rawGameState : Maybe Decode.Value 
     }
 
+type Msg
+    = ClickedHex ( Int, Int )
+    | ClickedHandPiece PieceKind
+    | ClickedNewGame
+    | GotInitialState Decode.Value
+    
 type Player 
     = White | Black
 
@@ -26,31 +37,137 @@ type PieceKind
     | Grasshopper
     | Ant
 
+type alias Position =
+    { q: Int
+    , r: Int
+    }
+
+type GameResult 
+    = Win Player
+    | Draw
+
+type alias Board = 
+    { stacks: List ( Position, List Piece )}
+
+boardDecoder : Decode.Decoder Board
+boardDecoder = 
+    Decode.field "stacks"
+        (Decode.list (Decode.map2 Tuple.pair (Decode.index 0 positionDecoder) (Decode.index 1 (Decode.list pieceDecoder))))
+        |> Decode.map Board
+
+type alias GameState = 
+    { board : Board
+    , turn : Player
+    , turnNumber : Int
+    , unplaced : List ( Player, List ( PieceKind, Int ) )
+    , result : Maybe GameResult
+    }
+
+type alias Piece = 
+    { kind: PieceKind
+    , owner: Player
+    }
+
+type alias Unplaced = 
+    List ( Player, List ( PieceKind, Int ))
+
+gameStateDecoder : Decode.Decoder GameState
+gameStateDecoder = 
+    Decode.map5 GameState
+        (Decode.field "board" boardDecoder)
+        (Decode.field "turn" playerDecoder)
+        (Decode.field "turn_number" Decode.int)
+        (Decode.field "unplaced" unplacedDecoder)
+        (Decode.field "result" (Decode.maybe gameResultDecoder))
+
+playerDecoder : Decode.Decoder Player
+playerDecoder = 
+    Decode.string
+        |> Decode.andThen
+            (\str -> 
+                case str of 
+                    "White" -> Decode.succeed White
+                    "Black" -> Decode.succeed Black
+                    _ -> Decode.fail ("Unknown player: " ++ str)
+            )
+
+pieceKindDecoder : Decode.Decoder PieceKind
+pieceKindDecoder = 
+    Decode.string
+        |> Decode.andThen
+            (\str -> 
+                case str of 
+                    "Bee" -> Decode.succeed Bee
+                    "Spider" -> Decode.succeed Spider
+                    "Beetle" -> Decode.succeed Beetle
+                    "Grasshopper" -> Decode.succeed Grasshopper
+                    "Ant" -> Decode.succeed Ant
+                    _ -> Decode.fail ("Unknown piece kind: " ++ str)
+            )
+
+gameResultDecoder : Decode.Decoder GameResult
+gameResultDecoder = 
+    Decode.oneOf
+        [ Decode.field "Win" playerDecoder |> Decode.map Win
+        , Decode.string
+            |> Decode.andThen
+                (\str ->
+                    if str == "Draw" then
+                        Decode.succeed Draw
+                    else
+                        Decode.fail ("Unknown result: " ++ str)
+                )
+        ]
+
+positionDecoder : Decode.Decoder Position
+positionDecoder =   
+    Decode.map2 Position
+        (Decode.field "q" Decode.int)
+        (Decode.field "r" Decode.int)
+
+pieceDecoder : Decode.Decoder Piece
+pieceDecoder = 
+    Decode.map2 Piece
+        (Decode.field "kind" pieceKindDecoder)
+        (Decode.field "owner" playerDecoder)
+
+unplacedDecoder : Decode.Decoder Unplaced
+unplacedDecoder = 
+    Decode.list
+        (Decode.map2 Tuple.pair
+            (Decode.index 0 playerDecoder)
+            (Decode.index 1 (Decode.list (Decode.map2 Tuple.pair (Decode.index 0 pieceKindDecoder) (Decode.index 1 Decode.int))))
+        )
+
 init : Model
 init =
     { selectedHex = Nothing
     , selectedHandPiece = Nothing
     , currentPlayer = White 
     , turnNumber = 1
+    , rawGameState = Nothing
     }
 
 
-type Msg
-    = ClickedHex ( Int, Int )
-    | ClickedHandPiece PieceKind
-    | ClickedNewGame
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickedHex pos ->
-            { model | selectedHex = Just pos }
+            ( { model | selectedHex = Just pos }, Cmd.none )
 
         ClickedHandPiece kind -> 
-            { model | selectedHandPiece = Just kind, selectedHex = Nothing}
+            ( { model | selectedHandPiece = Just kind, selectedHex = Nothing}, Cmd.none )
         
         ClickedNewGame -> 
-            init
+            ( model, requestNewGame () )
+
+        GotInitialState value -> 
+            ( {model | rawGameState = Just value }, Cmd.none )
+
+subscriptions : Model -> Sub Msg
+subscriptions _ = 
+    receiveInitialState GotInitialState
 
 newGameButton : Html Msg
 newGameButton =
@@ -73,12 +190,16 @@ newGameButton =
 
 view : Model -> Html Msg
 view model =
-    div [ style "position" "relative", style "width" "100vw", style "height" "100vh" ]
-        [ boardView model 
-        , newGameButton
-        , topRightInfo model
-        , handToolbar model
+    div [ style "position" "relative", style "width" "100vw", style "height" "100vh"]
+        [ button [ Html.Events.onClick ClickedNewGame ] [ text "New Game" ]
+        , div [] [ text (Debug.toString model.rawGameState) ]
         ]
+    -- div [ style "position" "relative", style "width" "100vw", style "height" "100vh" ]
+    --     [ boardView model 
+    --     , newGameButton
+    --     , topRightInfo model
+    --     , handToolbar model
+    --     ]
 
 handToolbar : Model -> Html Msg
 handToolbar model = 
@@ -255,4 +376,9 @@ hexCorner cx cy size i =
 
 main : Program () Model Msg
 main =
-    Browser.sandbox { init = init, view = view, update = update }
+    Browser.element
+        { init = \_ -> ( init, Cmd.none)
+        , view = view
+        , update = update 
+        , subscriptions = subscriptions
+        }
