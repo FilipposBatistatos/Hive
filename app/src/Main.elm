@@ -282,12 +282,20 @@ renderHex model pos =
             List.member pos model.legalPlacements
 
         hexFill =
-            if isSelected then
-                "#8fe0a0"
-            else if isLegalPlacement then
-                "#d4f0d9" -- lighter green: "you could place here", distinct from "selected"
-            else
-                "white"
+            case pieceHere of
+                Just piece -> 
+                    let
+                        _ = Debug.log "piece owner" piece.owner
+                    in
+                    pieceColor piece.owner
+                
+                Nothing ->
+                    if isSelected then
+                        "#f0c283"
+                    else if isLegalPlacement then
+                        "#d4f0d9" -- lighter green: "you could place here", distinct from "selected"
+                    else
+                        "white"
     in
     g [ transform ("translate(" ++ String.fromFloat x ++ "," ++ String.fromFloat y ++ ")") ]
         (polygon
@@ -422,6 +430,11 @@ countBadge count =
     else
         text ""
 
+pieceColor : Player -> String
+pieceColor player =
+    case player of 
+        White -> "#f5f0e0"
+        Black -> "#515151"
 
 pieceGlyph : PieceKind -> String
 pieceGlyph kind =
