@@ -7,7 +7,7 @@ pub fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
     // Generates legal moves based on the selected piece
     
     // If the bee is not placed you cannot move anything
-    if !game.unplaced[&game.turn]
+    if game.unplaced[&game.turn]
         .contains_key(&PieceKind::Bee)
     {
             return vec![];                

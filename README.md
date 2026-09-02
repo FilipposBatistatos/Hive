@@ -13,3 +13,8 @@ Elm to Js
 ```bash
 elm make ./src/Main.elm --output=elm.js
 ```
+
+Python server
+```bash
+python -m http.server 8000
+```

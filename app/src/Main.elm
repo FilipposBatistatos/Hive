@@ -17,6 +17,8 @@ port requestLegalPlacements : Decode.Value -> Cmd msg
 port receiveLegalPlacements : (Decode.Value -> msg) -> Sub msg
 port requestApplyMove : ( Decode.Value, Decode.Value ) -> Cmd msg
 port receiveNewState : ( Decode.Value -> msg ) -> Sub msg
+port requestMovesForPiece : ( Decode.Value, Decode.Value ) -> Cmd msg
+port receiveMovesForPiece : ( Decode.Value -> msg ) -> Sub msg
 
 -- TYPES
 
@@ -67,7 +69,8 @@ type alias Model =
     , selectedHandPiece : Maybe PieceKind
     , gameState : Maybe GameState
     , decodeErrorMsg : Maybe String
-    , legalPlacements : List Position
+    , legalPlacements : List Position -- Where the currently selected piece from hand can be placed
+    , legalMoveTargets : List Position -- Where the currently selected piece can move to
     }
 
 
@@ -78,6 +81,7 @@ init =
     , gameState = Nothing
     , decodeErrorMsg = Nothing
     , legalPlacements = []
+    , legalMoveTargets = []
     }
 
 
@@ -90,18 +94,18 @@ type Msg
     | GotInitialState Decode.Value
     | GotLegalPlacements Decode.Value
     | GotNewState Decode.Value
+    | GotMovesForPiece Decode.Value
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickedHex pos ->
-            case ( model.gameState, model.selectedHandPiece ) of
-                ( Just state, Just kind ) -> 
-                    ( model
-                    , requestApplyMove ( encodeGameState state, encodeMove (Place kind pos) )
-                    )   
-                _ -> 
-                    ( { model | selectedHex = Just pos }, Cmd.none )
+            case model.gameState of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just state ->
+                    handleHexClick state pos model 
 
         ClickedHandPiece kind ->
             case model.gameState of
@@ -145,12 +149,51 @@ update msg model =
                 Err error -> 
                     ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
 
+        GotMovesForPiece value ->
+            case Decode.decodeValue (Decode.list moveDecoder) value of 
+                Ok positions -> 
+                    ( { model | legalMoveTargets = positions }, Cmd.none )
+
+                Err error -> 
+                    ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
+
+handleHexClick : GameState -> Position -> Model -> ( Model, Cmd Msg )
+handleHexClick state pos model = 
+    case ( model.selectedHandPiece, model.selectedHex ) of
+        ( Just kind, _ ) -> 
+            handlePlacement state kind pos model
+        ( Nothing, Just fromPos ) ->
+            handleMove state fromPos pos model
+        ( Nothing, Nothing ) ->
+            handlePieceSelection state pos model
+
+handlePlacement : GameState -> PieceKind -> Position -> Model -> ( Model, Cmd Msg )
+handlePlacement state kind pos model =
+    if List.member pos model.legalPlacements then
+        ( model, requestApplyMove ( encodeGameState state, encodeMove ( Place kind pos ) ) )
+    else
+        ( model, Cmd.none )    
+
+handleMove : GameState -> Position -> Position -> Model -> ( Model, Cmd Msg )
+handleMove state fromPos pos model = 
+    if List.member pos model.legalMoveTargets then
+        ( model, requestApplyMove ( encodeGameState state, encodeMove (MovePiece fromPos pos ) ) )
+    else
+        handlePieceSelection state pos model
+
+handlePieceSelection : GameState -> Position -> Model -> ( Model, Cmd Msg )
+handlePieceSelection state pos model = 
+    ( { model | selectedHex = Just pos, legalMoveTargets = [] }
+    , requestMovesForPiece ( encodeGameState state, encodePosition pos )
+    )
+
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ receiveInitialState GotInitialState
         , receiveLegalPlacements GotLegalPlacements
         , receiveNewState GotNewState
+        , receiveMovesForPiece GotMovesForPiece
         ]
 
 -- VIEW
@@ -282,6 +325,9 @@ renderHex model pos =
         isLegalPlacement =
             List.member pos model.legalPlacements
 
+        isLegalMoveTarget = 
+            List.member pos model.legalMoveTargets
+
         isClickable = 
             case model.selectedHandPiece of 
                 Just _ -> 
@@ -304,7 +350,7 @@ renderHex model pos =
                 Nothing ->
                     if isSelected then
                         "#f0c283"
-                    else if isLegalPlacement then
+                    else if isLegalPlacement || isLegalMoveTarget then
                         "#d4f0d9" -- lighter green: "you could place here", distinct from "selected"
                     else
                         "white"
@@ -559,6 +605,12 @@ gameResultDecoder =
                     else
                         Decode.fail ("Unknown result: " ++ str)
                 )
+        ]
+moveDecoder : Decode.Decoder Position
+moveDecoder =
+    Decode.oneOf
+        [ Decode.field "Move" (Decode.field "to" positionDecoder)
+        , Decode.field "Place" (Decode.field "at" positionDecoder)
         ]
 
 -- ENCODERS
