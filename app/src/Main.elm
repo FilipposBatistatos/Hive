@@ -95,6 +95,7 @@ type Msg
     | GotLegalPlacements Decode.Value
     | GotNewState Decode.Value
     | GotMovesForPiece Decode.Value
+    | ClickedDeselect
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -167,6 +168,9 @@ update msg model =
                 Err error -> 
                     ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
 
+        ClickedDeselect ->
+            ( { model | selectedHandPiece = Nothing, legalPlacements = [] }, Cmd.none )
+
 handleHexClick : GameState -> Position -> Model -> ( Model, Cmd Msg )
 handleHexClick state pos model = 
     case ( model.selectedHandPiece, model.selectedHex ) of
@@ -212,7 +216,7 @@ view : Model -> Html Msg
 view model =
     div [ style "position" "relative", style "width" "100vw", style "height" "100vh" ]
         [ boardView model
-        , topLeftControls
+        , topLeftControls model
         , topRightInfo model
         , handToolbar model
         , errorBanner model
@@ -280,20 +284,25 @@ welcomeCard model =
                 ]
 
 
-topLeftControls : Html Msg
-topLeftControls =
-    div [ style "position" "fixed", style "top" "16px", style "left" "16px" ]
-        [ button
-            [ Html.Events.onClick ClickedNewGame
-            , style "padding" "10px 16px"
-            , style "border-radius" "8px"
-            , style "border" "1px solid #ddd"
-            , style "background" "white"
-            , style "font-size" "14px"
-            , style "cursor" "pointer"
-            ]
-            [ text "New Game" ]
-        ]
+topLeftControls : Model -> Html Msg
+topLeftControls model =
+    case model.gameState of 
+        Nothing -> 
+            text ""
+
+        Just _ ->
+            div [ style "position" "fixed", style "top" "16px", style "left" "16px" ]
+                [ button
+                    [ Html.Events.onClick ClickedNewGame
+                    , style "padding" "10px 16px"
+                    , style "border-radius" "8px"
+                    , style "border" "1px solid #ddd"
+                    , style "background" "white"
+                    , style "font-size" "14px"
+                    , style "cursor" "pointer"
+                    ]
+                    [ text "New Game" ]
+                ]
 
 
 topRightInfo : Model -> Html Msg
@@ -505,8 +514,13 @@ handToolbar model =
                 , style "display" "flex"
                 , style "gap" "12px"
                 ]
-                (List.map (handSlot model) myHand)
-
+                ((if model.selectedHandPiece /= Nothing then
+                    [ deselectButton ]
+                    else
+                    []
+                    )
+                    ++ List.map (handSlot model) myHand
+                )
 
 handSlot : Model -> ( PieceKind, Int ) -> Html Msg
 handSlot model ( kind, count ) =
@@ -553,6 +567,22 @@ countBadge count =
             [ text (String.fromInt count) ]
     else
         text ""
+
+deselectButton : Html Msg
+deselectButton = 
+    button 
+        [ Html.Events.onClick ClickedDeselect
+        , style "width" "70px"
+        , style "height" "70px"
+        , style "border-radius" "8px"
+        , style "border" "1px solid #ddd"
+        , style "background" "#fff0f0"
+        , style "color" "#c0392b"
+        , style "font-size" "18px"
+        , style "font-weight" "bold"
+        , style "cursor" "pointer"
+        ]
+        [ text "×"]
 
 pieceColor : Player -> String
 pieceColor player =
