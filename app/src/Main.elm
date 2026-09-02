@@ -122,7 +122,16 @@ update msg model =
         GotInitialState value ->
             case Decode.decodeValue gameStateDecoder value of
                 Ok state ->
-                    ( { model | gameState = Just state, decodeErrorMsg = Nothing }, Cmd.none )
+                    ( { model
+                        | gameState = Just state
+                        , decodeErrorMsg = Nothing
+                        , selectedHex = Nothing
+                        , selectedHandPiece = Nothing
+                        , legalPlacements = []
+                        , legalMoveTargets = []
+                    }
+                    , Cmd.none
+                    )
 
                 Err error ->
                     ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
@@ -143,6 +152,7 @@ update msg model =
                         , selectedHex = Nothing
                         , selectedHandPiece = Nothing
                         , legalPlacements = []
+                        , legalMoveTargets = []
                         }
                     , Cmd.none 
                     )
@@ -206,6 +216,7 @@ view model =
         , topRightInfo model
         , handToolbar model
         , errorBanner model
+        , gameOverBanner model
         ]
 
 
@@ -328,13 +339,21 @@ renderHex model pos =
         isLegalMoveTarget = 
             List.member pos model.legalMoveTargets
 
-        isClickable = 
-            case model.selectedHandPiece of 
-                Just _ -> 
-                    isLegalPlacement
+        isGameOver =
+            model.gameState
+                |> Maybe.andThen .result
+                |> (\r -> r /= Nothing)
 
-                Nothing -> 
-                    True
+        isClickable = 
+            if isGameOver then
+                False
+            else
+                case model.selectedHandPiece of 
+                    Just _ -> 
+                        isLegalPlacement
+
+                    Nothing -> 
+                        True
 
         cursorStyle = 
             if isClickable then 
@@ -510,6 +529,51 @@ pieceGlyph kind =
         Beetle -> "🪲"
         Grasshopper -> "🦗"
         Ant -> "🐜"
+
+
+-- GAME OVER BANNER
+
+gameOverBanner : Model -> Html Msg
+gameOverBanner model = 
+    case model.gameState |> Maybe.andThen .result of
+        Nothing -> 
+            text ""
+        
+        Just (Win player) ->
+            resultOverlay (playerLabel player ++ " wins!")
+        
+        Just Draw ->
+            resultOverlay "Draw!"
+
+resultOverlay : String -> Html Msg
+resultOverlay message = 
+     div
+        [ style "position" "fixed"
+        , style "top" "50%"
+        , style "left" "50%"
+        , style "transform" "translate(-50%, -50%)"
+        , style "background" "white"
+        , style "border" "2px solid #333"
+        , style "border-radius" "16px"
+        , style "padding" "32px 48px"
+        , style "display" "flex"
+        , style "flex-direction" "column"
+        , style "align-items" "center"
+        , style "gap" "16px"
+        , style "box-shadow" "0 4px 20px rgba(0,0,0,0.2)"
+        ]
+        [ div [ style "font-size" "24px", style "font-weight" "bold" ] [ text message ]
+        , button
+            [ Html.Events.onClick ClickedNewGame
+            , style "padding" "10px 20px"
+            , style "border-radius" "8px"
+            , style "border" "1px solid #ddd"
+            , style "background" "white"
+            , style "font-size" "14px"
+            , style "cursor" "pointer"
+            ]
+            [ text "Play Again" ]
+        ]
 
 
 -- DECODERS

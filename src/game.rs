@@ -67,8 +67,8 @@ pub fn is_game_over(board: &Board, pos: Position) -> Option<GameResult> {
 
     match (surrounded_bee_owners.contains(&Player::White), surrounded_bee_owners.contains(&Player::Black)) {
         (true, true) => Some(GameResult::Draw),
-        (true, false) => Some(GameResult::Win(Player::White)),
-        (false, true) => Some(GameResult::Win(Player::Black)),
+        (true, false) => Some(GameResult::Win(Player::Black)),
+        (false, true) => Some(GameResult::Win(Player::White)),
         (false, false) => None,
     }
 }
