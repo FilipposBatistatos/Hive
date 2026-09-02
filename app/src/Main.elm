@@ -217,6 +217,7 @@ view model =
         , handToolbar model
         , errorBanner model
         , gameOverBanner model
+        , welcomeCard model
         ]
 
 
@@ -239,6 +240,44 @@ errorBanner model =
 
         Nothing ->
             text ""
+
+welcomeCard : Model -> Html Msg
+welcomeCard model = 
+    case model.gameState of 
+        Just _ -> 
+            text ""
+
+        Nothing ->
+            div
+                [ style "position" "fixed"
+                , style "top" "50%"
+                , style "left" "50%"
+                , style "transform" "translate(-50%, -50%)"
+                , style "background" "white"
+                , style "border" "2px solid #333"
+                , style "border-radius" "16px"
+                , style "padding" "40px 56px"
+                , style "display" "flex"
+                , style "flex-direction" "column"
+                , style "align-items" "center"
+                , style "gap" "20px"
+                , style "box-shadow" "0 4px 20px rgba(0,0,0,0.2)"
+                , style "text-align" "center"
+                ]
+                [ div [ style "font-size" "32px", style "font-weight" "bold" ] [ text "Hive" ]
+                , div [ style "color" "#666", style "max-width" "320px" ] [ text "A hive game engine written in Rust, rendered here in Elm." ]
+                , button
+                    [ Html.Events.onClick ClickedNewGame
+                    , style "padding" "12px 28px"
+                    , style "border-radius" "8px"
+                    , style "border" "1px solid #ddd"
+                    , style "background" "#8fe0a0"
+                    , style "font-size" "16px"
+                    , style "font-weight" "bold"
+                    , style "cursor" "pointer"
+                    ]
+                    [ text "Start Game" ]
+                ]
 
 
 topLeftControls : Html Msg
@@ -283,8 +322,8 @@ topRightInfo model =
 infoColumn : String -> String -> Html Msg
 infoColumn label value =
     div [ style "text-align" "center" ]
-        [ div [ style "color" "#888", style "font-size" "14px" ] [ text label ]
-        , div [ style "font-weight" "bold" ] [ text value ]
+        [ div [ style "color" "#888", style "font-size" "18px", style "padding" "4px"] [ text label ]
+        , div [ style "font-weight" "bold", style "font-size" "24px", style "padding" "4px" ] [ text value ]
         ]
 
 
@@ -559,17 +598,17 @@ resultOverlay message =
         , style "display" "flex"
         , style "flex-direction" "column"
         , style "align-items" "center"
-        , style "gap" "16px"
+        , style "gap" "32px"
         , style "box-shadow" "0 4px 20px rgba(0,0,0,0.2)"
         ]
-        [ div [ style "font-size" "24px", style "font-weight" "bold" ] [ text message ]
+        [ div [ style "font-size" "32px", style "font-weight" "bold" ] [ text message ]
         , button
             [ Html.Events.onClick ClickedNewGame
-            , style "padding" "10px 20px"
+            , style "padding" "20px 30px"
             , style "border-radius" "8px"
             , style "border" "1px solid #ddd"
-            , style "background" "white"
-            , style "font-size" "14px"
+            , style "background" "#8fe0a0"
+            , style "font-size" "20px"
             , style "cursor" "pointer"
             ]
             [ text "Play Again" ]
