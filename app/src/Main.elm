@@ -376,6 +376,7 @@ renderHex model pos =
         pieceHere =
             model.gameState
                 |> Maybe.andThen (\state -> lookupStack state.board pos)
+                |> Maybe.map List.reverse
                 |> Maybe.andThen List.head
 
         isSelected =
@@ -384,73 +385,75 @@ renderHex model pos =
         isLegalPlacement =
             List.member pos model.legalPlacements
 
-        isLegalMoveTarget = 
+        isLegalMoveTarget =
             List.member pos model.legalMoveTargets
 
-        isGameOver =
-            model.gameState
-                |> Maybe.andThen .result
-                |> (\r -> r /= Nothing)
+        isClickable =
+            case ( model.selectedHandPiece, model.selectedHex ) of
+                ( Just _, _ ) ->
+                    isLegalPlacement
 
-        isClickable = 
-            if isGameOver then
-                False
-            else
-                case model.selectedHandPiece of 
-                    Just _ -> 
-                        isLegalPlacement
+                _ ->
+                    True
 
-                    Nothing -> 
-                        True
-
-        cursorStyle = 
-            if isClickable then 
+        cursorStyle =
+            if isClickable then
                 Svg.Attributes.style "cursor: pointer;"
             else
                 Svg.Attributes.style "cursor: default;"
 
         hexFill =
             case pieceHere of
-                Just piece -> 
+                Just piece ->
                     pieceColor piece.owner
-                
+
                 Nothing ->
                     if isSelected then
                         "#f0c283"
-                    else if isLegalPlacement || isLegalMoveTarget then
-                        "#d4f0d9" -- lighter green: "you could place here", distinct from "selected"
+                    else if isLegalPlacement then
+                        "#d4f0d9"
                     else
                         "white"
-        
-        baseAttrs = 
+
+        ( hexStroke, hexStrokeWidth ) =
+            if isSelected then
+                ( "#f0c283", "3" )
+            else if isLegalMoveTarget then
+                ( "#4caf50", "3" ) 
+            else if isLegalPlacement then
+                ( "#8fe0a0", "2" )
+            else
+                ( "#ddd", "1" )
+
+        baseAttrs =
             [ points (hexPoints 0 0 38)
             , fill hexFill
-            , stroke "#ddd"
+            , stroke hexStroke
+            , Svg.Attributes.strokeWidth hexStrokeWidth
             , cursorStyle
             ]
 
-        attrs = 
-            if isClickable then 
-                baseAttrs ++ [ Svg.Events.onClick ( ClickedHex pos ) ]
+        attrs =
+            if isClickable then
+                baseAttrs ++ [ Svg.Events.onClick (ClickedHex pos) ]
             else
                 baseAttrs
-
     in
     g [ transform ("translate(" ++ String.fromFloat x ++ "," ++ String.fromFloat y ++ ")") ]
         (polygon attrs []
-            :: (case pieceHere of 
-                Just piece ->
-                    [ Svg.text_
-                        [ Svg.Attributes.textAnchor "middle"
-                        , Svg.Attributes.dominantBaseline "central"
-                        , Svg.Attributes.fontSize "28"
+            :: (case pieceHere of
+                    Just piece ->
+                        [ Svg.text_
+                            [ Svg.Attributes.textAnchor "middle"
+                            , Svg.Attributes.dominantBaseline "central"
+                            , Svg.Attributes.fontSize "28"
+                            ]
+                            [ Svg.text (pieceGlyph piece.kind) ]
                         ]
-                        [ Svg.text (pieceGlyph piece.kind) ]
-                    ]
 
-                Nothing ->
-                    []
-            )
+                    Nothing ->
+                        []
+               )
         )
 
 lookupStack : Board -> Position -> Maybe (List Piece)
