@@ -244,7 +244,7 @@ fn spider_moves(pos: &Position, board: &Board) -> Vec<Move> {
             })
     }
     
-    visit(board, *pos, HashSet::from([*pos]), 3)
+    visit(&board.remove_piece(*pos), *pos, HashSet::from([*pos]), 3)
         .into_iter()
         .map(|candidate| Move::Move{ from: *pos, to: candidate })
         .collect()
