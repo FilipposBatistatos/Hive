@@ -1,0 +1,15 @@
+{
+  "name": "Hive",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "Hive_bg.wasm",
+    "Hive.js",
+    "Hive.d.ts"
+  ],
+  "main": "Hive.js",
+  "types": "Hive.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
