@@ -1,4 +1,4 @@
-import init, { init_panic_hook, apply_move_json, get_legal_placements, legal_moves_for_piece_json, new_game } from "./src/wasm/Hive.js";
+import init, { init_panic_hook, apply_move_json, get_legal_placements, legal_moves_for_piece_json, new_game } from "./wasm/Hive.js";
 
 async function main() {
     await init();
