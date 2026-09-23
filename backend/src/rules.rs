@@ -33,11 +33,6 @@ pub fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
     vec![]
 }
 
-/*
-This a function to collect all the 
-fn all_legal_move() -> Vec<Move>
-*/
-
 fn can_place(board: &Board, position: Position, player: Player) -> bool {
     if board.stacks.is_empty() {
         return true;
@@ -74,6 +69,13 @@ pub fn legal_placements(board: &Board, player: Player) -> HashSet<Position> {
         .flat_map(|pos| neighbors(*pos))
         .filter(|&candidate| can_place(board, candidate, player))
         .collect()
+}
+
+fn opponent(player: Player) -> Player {
+    match player {
+        Player::White => Player::Black,
+        Player::Black => Player::White,
+    }
 }
 
 pub fn is_occupied(pos: Position, board: &Board) -> bool {

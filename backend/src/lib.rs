@@ -2,6 +2,7 @@ mod types;
 mod board;
 mod rules;
 mod game;
+mod engine;
 
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
