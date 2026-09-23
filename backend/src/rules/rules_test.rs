@@ -291,6 +291,20 @@ fn arbitrary_board(steps: usize) -> impl Strategy<Value = Board> {
     })
 }
 
+fn arbitrary_hand() -> impl Strategy<Value = HashMap<PieceKind, u8>> {
+    prop::collection::hash_map(
+        prop_oneof![
+            Just(PieceKind::Bee),
+            Just(PieceKind::Ant),
+            Just(PieceKind::Beetle),
+            Just(PieceKind::Spider),
+            Just(PieceKind::Grasshopper),
+        ], 
+        1u8..=3,
+        0..=5,
+    )
+}
+
 fn arbitrary_player() -> impl Strategy<Value = Player> {
     prop_oneof![Just(Player::White), Just(Player::Black)]
 }
