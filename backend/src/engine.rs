@@ -31,3 +31,14 @@ pub fn all_legal_moves(state: &GameState) -> Vec<Move> {
         .chain(all_legal_placements(state))
         .collect()
 }
+
+// State evaluation heuristics
+fn mobility(state: &GameState, player: Player) -> i32 {
+    let p = GameState { turn: player, ..state.clone() };
+    all_legal_moves(&p).len() as i32
+}
+
+pub fn evaluate(state: &GameState, player: player) -> i32 {
+    mobility(state, player) - mobility(state, opponent(player))
+}
+
