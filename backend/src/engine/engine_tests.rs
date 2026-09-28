@@ -8,7 +8,7 @@ use crate::types::*;
 use crate::board::Board;
 
 #[test]
-fn minimax_correctly_picks_winning_move() {
+fn minimax_winning_move() {
     let board = Board::new()
         .place_piece(Position {q: 0, r: 0}, Piece {kind: PieceKind::Bee, owner: Player::White})
         .place_piece(Position {q: 0, r: -1}, Piece {kind: PieceKind::Ant, owner: Player::White})
@@ -48,6 +48,47 @@ fn minimax_correctly_picks_winning_move() {
     "#]].assert_debug_eq(&best_move(&state, 1));
 }
 
+#[test]
+fn minimax_blocks_winning_move() {
+    let board = Board::new()
+        .place_piece(Position {q: 0, r: 0}, Piece {kind: PieceKind::Bee, owner: Player::White})
+        .place_piece(Position {q: 0, r: -1}, Piece {kind: PieceKind::Ant, owner: Player::Black})
+        .place_piece(Position {q: -1, r: 1}, Piece {kind: PieceKind::Ant, owner: Player::Black})
+        .place_piece(Position {q: 0, r: 1}, Piece {kind: PieceKind::Ant, owner: Player::Black})
+        .place_piece(Position {q: -1, r: -1}, Piece {kind: PieceKind::Ant, owner: Player::Black})
+        .place_piece(Position {q: -1, r: 0}, Piece {kind: PieceKind::Ant, owner: Player::Black})
+        .place_piece(Position {q: -1, r: 2}, Piece {kind: PieceKind::Ant, owner: Player::White})
+        .place_piece(Position {q: 1, r: 0}, Piece {kind: PieceKind::Bee, owner: Player::Black});
+
+    let state = GameState {
+        board: board,
+        turn: Player::White,
+        turn_number: 8,
+        unplaced: HashMap::from([
+            (Player::White, HashMap::from([
+                (PieceKind::Ant, 1),
+                (PieceKind::Spider, 1),
+            ])),
+            (Player::Black, HashMap::from([
+                (PieceKind::Grasshopper, 2),
+            ])),
+        ]),
+        result: None,
+    };
+
+    expect![[r#"
+        Move {
+            from: Position {
+                q: -1,
+                r: 2,
+            },
+            to: Position {
+                q: 1,
+                r: -1,
+            },
+        }
+    "#]].assert_debug_eq(&best_move(&state, 1));
+}
 use proptest::prelude::*;
 
 proptest! {
