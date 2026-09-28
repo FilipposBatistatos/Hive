@@ -65,5 +65,17 @@ pub fn minimax(state: &GameState, depth: u32, maximising: Player) -> i32 {
     }
 }
 
+pub fn best_move(state: &GameState, depth: u32) -> Move {
+    all_legal_moves(state)
+        .into_iter()
+        .map(|mv| {
+            let score = minimax(&apply_move(state, mv), depth - 1, state.turn);
+            (mv, score)
+        })
+        .max_by_key(|&(_, score)| score)
+        .map(|(mv, _)| mv)
+        .expect("all_legal_moves never returns an mepty list")
+}
+
 #[cfg(test)]
 mod engine_tests;

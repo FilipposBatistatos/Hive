@@ -1,10 +1,10 @@
 use super::*;
 
+use std::collectio ns::{HashMap, HashSet};
 use crate::test_support::*;
 use crate::types::*;
 
 use proptest::prelude::*;
-use std::collections::{HashMap, HashSet};
 
 proptest! {
     #[test]
