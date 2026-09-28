@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::board::Board;
 use crate::types::*;
-use crate::rules::{ legal_moves, legal_placements };
+use crate::rules::{ legal_moves, legal_placements, opponent };
 
 pub fn all_legal_placements(state: &GameState) -> Vec<Move> {
     let positions = legal_placements(&state.board, state.turn);
@@ -38,7 +38,9 @@ fn mobility(state: &GameState, player: Player) -> i32 {
     all_legal_moves(&p).len() as i32
 }
 
-pub fn evaluate(state: &GameState, player: player) -> i32 {
+pub fn evaluate(state: &GameState, player: Player) -> i32 {
     mobility(state, player) - mobility(state, opponent(player))
 }
 
+#[cfg(test)]
+mod engine_tests;

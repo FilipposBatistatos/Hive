@@ -71,7 +71,7 @@ pub fn legal_placements(board: &Board, player: Player) -> HashSet<Position> {
         .collect()
 }
 
-fn opponent(player: Player) -> Player {
+pub fn opponent(player: Player) -> Player {
     match player {
         Player::White => Player::Black,
         Player::Black => Player::White,

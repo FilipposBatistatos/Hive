@@ -4,6 +4,10 @@ mod rules;
 mod game;
 mod engine;
 
+// Tests
+#[cfg(test)]
+mod test_support;
+
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
 use serde::Serialize;
