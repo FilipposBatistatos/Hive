@@ -2,41 +2,48 @@ use crate::board::Board;
 use crate::types::*;
 use crate::rules::*;
 
-pub fn apply_move(state: &GameState, mv: Move) -> GameState {
-    let new_board = match mv {
-        Move::Place {kind, at} => state.board.place_piece(at, Piece { kind, owner: state.turn }),
-        Move::Move {from, to} => state.board.move_piece(from, to),
-    };
+pub fn apply_move(state: &GameState, maybe_move: Option<Move>) -> GameState {
+    match maybe_move {
+        Some(mv) => {
+            let new_board = match mv {
+                Move::Place {kind, at} => state.board.place_piece(at, Piece { kind, owner: state.turn }),
+                Move::Move {from, to} => state.board.move_piece(from, to),
+            };
 
-    let affected_position = match mv {
-        Move::Place {at, ..} => at,
-        Move::Move {to, ..} => to,
-    };
+            let affected_position = match mv {
+                Move::Place {at, ..} => at,
+                Move::Move {to, ..} => to,
+            };
 
-    let new_unplaced = match mv {
-        Move::Place { kind, .. } => {
-            let mut unplaced = state.unplaced.clone();
-            if let Some(hand) = unplaced.get_mut(&state.turn) {
-                hand.retain(|&k, count| {
-                    if k == kind {
-                        *count -= 1;
-                        *count > 0
-                    } else {
-                        true
+            let new_unplaced = match mv {
+                Move::Place { kind, .. } => {
+                    let mut unplaced = state.unplaced.clone();
+                    if let Some(hand) = unplaced.get_mut(&state.turn) {
+                        hand.retain(|&k, count| {
+                            if k == kind {
+                                *count -= 1;
+                                *count > 0
+                            } else {
+                                true
+                            }
+                        });
                     }
-                });
+                    unplaced
+                }
+                Move::Move { .. } => state.unplaced.clone(),
+            };
+        
+            GameState {
+                board: new_board.clone(),
+                turn: if state.turn == Player::White { Player::Black } else { Player::White },
+                turn_number: state.turn_number + 1,
+                unplaced: new_unplaced,
+                result: is_game_over(&new_board, affected_position),
             }
-            unplaced
         }
-        Move::Move { .. } => state.unplaced.clone(),
-    };
-    
-    GameState {
-        board: new_board.clone(),
-        turn: if state.turn == Player::White { Player::Black } else { Player::White },
-        turn_number: state.turn_number + 1,
-        unplaced: new_unplaced,
-        result: is_game_over(&new_board, affected_position),
+        None => {
+            GameState { turn: opponent(state.turn), turn_number: state.turn_number + 1, ..state.clone() }
+        }
     }
 }
 

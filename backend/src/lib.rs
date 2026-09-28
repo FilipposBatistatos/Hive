@@ -81,7 +81,7 @@ pub fn get_legal_placements(state_js: JsValue) -> JsValue {
 pub fn apply_move_json(state_js: JsValue, mv_js: JsValue) -> JsValue {
     let state: GameState = serde_wasm_bindgen::from_value(state_js).unwrap();
     let mv: Move = serde_wasm_bindgen::from_value(mv_js).unwrap();
-    let new_state = apply_move(&state, mv);
+    let new_state = apply_move(&state, Some(mv));
     to_js(&GameStateWire::from(&new_state))
 }
 
