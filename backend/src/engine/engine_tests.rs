@@ -69,3 +69,38 @@ proptest! {
         );
     }
 }
+
+proptest! {
+    #[test]
+    fn minimax_depth_one_picks_best_child(
+        board in arbitrary_board(8),
+        player in arbitrary_player(),
+        perspective in arbitrary_player(),
+        hand_a in arbitrary_hand(),
+        hand_b in arbitrary_hand(),
+    ) {
+        let state = GameState {
+            board: board,
+            turn: player,
+            turn_number: 1,
+            unplaced: HashMap::from([
+                (player, hand_a),
+                (opponent(player), hand_b),
+            ]),
+            result: None,
+        };
+
+        let child_scores = all_legal_moves(&state)
+            .into_iter()
+            .map(|mv| minimax(&apply_move(&state, mv), 0, perspective));
+
+        let expected = if state.turn == perspective {
+            child_scores.max()
+        } else {
+            child_scores.min()
+        }
+        .expect("All legal moves never returns an empty list");
+        
+        prop_assert_eq!(minimax(&state, 1, perspective), expected);
+    }
+}
