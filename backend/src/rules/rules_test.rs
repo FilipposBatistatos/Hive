@@ -3,16 +3,7 @@ use std::collections::HashMap;
 use crate::engine::*;
 use super::*;
 use expect_test::expect;
-
-fn render_moves(moves: &[Move]) -> String {
-    // Helper function to visualise pieces on the board
-    let visualised = moves.iter().fold(Board::new(), |b, mov| match mov {
-        Move::Move { to, .. } => b.place_piece(*to, Piece { kind: PieceKind::Ant, owner: Player::White }),
-        Move::Place { at, .. } => b.place_piece(*at, Piece { kind: PieceKind::Ant, owner: Player::White }),
-        Move::Pass => b,
-    });
-    visualised.snapshot()
-}
+use crate::test_support::*;
 
 #[test]
 fn correct_neighbor_positions() {
@@ -267,7 +258,6 @@ fn cannot_slide_through_pinched_gap() {
 }
 
 use proptest::prelude::*;
-use crate::test_support::*;
 use proptest::test_runner::TestRunner;
 use proptest::strategy::ValueTree;
 

@@ -15,6 +15,16 @@ const PIECE_KINDS: [PieceKind; 5] = [
     PieceKind::Ant,
 ];
 
+pub fn render_moves(moves: &[Move]) -> String {
+    // Helper function to visualise pieces on the board
+    let visualised = moves.iter().fold(Board::new(), |b, mov| match mov {
+        Move::Move { to, .. } => b.place_piece(*to, Piece { kind: PieceKind::Ant, owner: Player::White }),
+        Move::Place { at, .. } => b.place_piece(*at, Piece { kind: PieceKind::Ant, owner: Player::White }),
+        Move::Pass => b,
+    });
+    visualised.snapshot()
+}
+
 pub fn arbitrary_board(steps: usize) -> impl Strategy<Value = Board> {
     prop::collection::vec((any::<usize>(), any::<usize>()), steps).prop_map(move |choices| {
         choices.into_iter().enumerate().fold(Board::new(), |board, (step, (pos_choice, kind_choice))| {
