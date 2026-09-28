@@ -37,7 +37,8 @@ proptest! {
                     prop_assert!(hand.contains_key(&kind));
                     prop_assert!(seen.insert((kind, at)), "Duplicate position produced");
                 }
-                Move::Move { .. } => prop_assert!(false, "Move instead of placement")
+                Move::Move { .. } => prop_assert!(false, "Move instead of placement"),
+                Move::Pass => prop_assert!(false, "Pass instead of placement"),
             }
         }
     }

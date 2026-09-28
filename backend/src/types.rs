@@ -41,4 +41,5 @@ pub enum GameResult {
 pub enum Move {
     Place { kind: PieceKind, at: Position },
     Move { from: Position, to: Position},
+    Pass,
 }

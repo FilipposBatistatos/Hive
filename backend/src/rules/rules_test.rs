@@ -9,6 +9,7 @@ fn render_moves(moves: &[Move]) -> String {
     let visualised = moves.iter().fold(Board::new(), |b, mov| match mov {
         Move::Move { to, .. } => b.place_piece(*to, Piece { kind: PieceKind::Ant, owner: Player::White }),
         Move::Place { at, .. } => b.place_piece(*at, Piece { kind: PieceKind::Ant, owner: Player::White }),
+        Move::Pass => b,
     });
     visualised.snapshot()
 }
