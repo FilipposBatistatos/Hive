@@ -215,7 +215,7 @@ fn ant_moves(pos: &Position, board: &Board) -> Vec<Move> {
             .fold(visited, |acc, pos| visit(board, pos, acc))
     }
 
-    visit(board, *pos, HashSet::<Position>::new())
+    visit(&board.remove_piece(*pos), *pos, HashSet::<Position>::new())
         .into_iter()
         .map(|candidate| Move::Move {from: *pos, to: candidate})
         .collect::<Vec<Move>>()

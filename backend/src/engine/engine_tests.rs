@@ -83,11 +83,11 @@ fn minimax_blocks_winning_move() {
                 r: 2,
             },
             to: Position {
-                q: 1,
-                r: -1,
+                q: -1,
+                r: -2,
             },
         }
-    "#]].assert_debug_eq(&best_move(&state, 1));
+    "#]].assert_debug_eq(&best_move(&state, 2));
 }
 use proptest::prelude::*;
 
