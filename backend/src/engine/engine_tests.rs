@@ -90,7 +90,35 @@ fn minimax_blocks_winning_move() {
         }
     "#]].assert_debug_eq(&best_move(&state, 2));
 }
+
 use proptest::prelude::*;
+
+proptest! {
+    #[test]
+    fn all_legal_moves_is_never_empty(
+        board in arbitrary_board(8),
+        player in arbitrary_player(),
+        hand in arbitrary_hand(),
+    ) {
+        let state = GameState {
+            board: board,
+            turn: player,
+            turn_number: 1,
+            unplaced: HashMap::from([
+                (player, hand),
+                (opponent(player), HashMap::new()),
+            ]),
+            result: None
+        };
+
+        prop_assert!(all_legal_moves(&state).len() > 0);
+    }
+}
+
+// proptest! {
+//     #[test]
+//     fn all_legal_moves_only_contains_pass_if_otherwise_empty()
+// }
 
 proptest! {
     #[test]
