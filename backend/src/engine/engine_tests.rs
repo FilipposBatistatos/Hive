@@ -48,6 +48,7 @@ fn minimax_winning_move() {
     "#]].assert_debug_eq(&best_move(&state, 1));
 }
 
+// TODO: Ensure move order is deterministic, otherwise this test might fail
 #[test]
 fn minimax_blocks_winning_move() {
     let board = Board::new()
@@ -187,5 +188,32 @@ proptest! {
         .expect("All legal moves never returns an empty list");
         
         prop_assert_eq!(minimax(&state, 1, perspective), expected);
+    }
+}
+
+proptest! {
+    #[test]
+    fn alpha_beta_agrees_with_minimax(
+        board in arbitrary_board(4),
+        player in arbitrary_player(),
+        perspective in arbitrary_player(),
+        hand_a in arbitrary_hand(),
+        hand_b in arbitrary_hand(), 
+    ) {
+        let state = GameState {
+            board: board,
+            turn: player,
+            turn_number: 1,
+            unplaced: HashMap::from([
+                (player, hand_a),
+                (opponent(player), hand_b),
+            ]),
+            result: None,
+        };
+
+        prop_assert_eq!(
+            minimax(&state, 2, perspective),
+            alpha_beta(&state, 2, i32::MIN, i32::MAX, perspective)
+        );
     }
 }

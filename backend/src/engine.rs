@@ -27,11 +27,16 @@ pub fn all_legal_movement(state: &GameState) -> Vec<Move> {
 }
 
 pub fn all_legal_moves(state: &GameState) -> Vec<Move> {
-    // TODO: If this list is every empty it must return a pass move
-    all_legal_movement(state)
+    let moves: Vec<Move> = all_legal_movement(state)
         .into_iter()
         .chain(all_legal_placements(state))
-        .collect()
+        .collect();
+
+    if moves.is_empty() {
+        vec![Move::Pass]
+    } else {
+        moves
+    }
 }
 
 // State evaluation heuristics
@@ -77,15 +82,30 @@ pub fn best_move(state: &GameState, depth: u32) -> Move {
         .expect("all_legal_moves never returns an mepty list")
 }
 
-pub fn alpha_beta(stae: &GameState, depth: u32, alpha: i32, beta: i32, perspective: Player) -> i32 {
-
+pub fn alpha_beta(state: &GameState, depth: u32, alpha: i32, beta: i32, maximising: Player) -> i32 {
+    match state.result {
+        Some(GameResult::Win(p)) => {
+            let score = WIN_SCORE + depth as i32;
+            if p == maximising { score } else { -score }
+        }
+        Some(GameResult::Draw) => 0,
+        None if depth == 0 => evaluate(state, maximising),
+        None => {
+            let moves = all_legal_moves(state);
+            if state.turn == maximising {
+                max_search(state, &moves, depth, alpha, beta, maximising, i32::MIN)
+            } else {
+                min_search(state, &moves, depth, alpha, beta, maximising, i32::MAX)
+            }
+        }
+    }
 }
 
 fn max_search(state: &GameState, moves: &[Move], depth: u32, alpha: i32, beta: i32, perspective: Player, best: i32) -> i32 {
     match moves {
         [] => best,
         [mv, rest @ ..] => {
-            let child_score = alpha_beta(&apply_move(state, *mv), depth - 1, alpha, beta, perspective);
+            let child_score = alpha_beta(&apply_move(state, mv.clone()), depth - 1, alpha, beta, perspective);
             let new_best = best.max(child_score);
             let new_alpha = alpha.max(new_best);
             if new_alpha >= beta {
@@ -97,8 +117,20 @@ fn max_search(state: &GameState, moves: &[Move], depth: u32, alpha: i32, beta: i
     }
 }
 
-min_search(state: &GameState, moves: &[Move], depth: u32, alpha: i32, beta: i32, perspective: Player, best: i32) -> i32 {
-
+fn min_search(state: &GameState, moves: &[Move], depth: u32, alpha: i32, beta: i32, perspective: Player, best: i32) -> i32 {
+    match moves {
+        [] => best,
+        [mv, rest @ ..] => {
+            let child_score = alpha_beta(&apply_move(state, mv.clone()), depth - 1, alpha, beta, perspective);
+            let new_best = best.min(child_score);
+            let new_beta = beta.min(new_best);
+            if alpha >= new_beta {
+                new_best
+            } else {
+                min_search(state, rest, depth, alpha, new_beta, perspective, new_best)
+            }
+        }
+    }
 }
 
 #[cfg(test)]
