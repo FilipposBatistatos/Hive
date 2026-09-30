@@ -48,7 +48,7 @@ pub fn is_game_over(board: &Board, pos: Position) -> Option<GameResult> {
         .collect();
         
     // Collect the players who's bees are surrounded
-    let surrounded_bee_owners: Vec<Player> = neighbors(pos)
+    let surrounded_bee_owners: Vec<Player> = candidate_positions
         .into_iter()
         .filter(|&pos| is_surrounded(board,pos)) // Find pos that are surrounded
         .filter_map(|pos| board.stacks.get(&pos)) // Get the stacks from those positions
