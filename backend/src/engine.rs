@@ -77,5 +77,29 @@ pub fn best_move(state: &GameState, depth: u32) -> Move {
         .expect("all_legal_moves never returns an mepty list")
 }
 
+pub fn alpha_beta(stae: &GameState, depth: u32, alpha: i32, beta: i32, perspective: Player) -> i32 {
+
+}
+
+fn max_search(state: &GameState, moves: &[Move], depth: u32, alpha: i32, beta: i32, perspective: Player, best: i32) -> i32 {
+    match moves {
+        [] => best,
+        [mv, rest @ ..] => {
+            let child_score = alpha_beta(&apply_move(state, *mv), depth - 1, alpha, beta, perspective);
+            let new_best = best.max(child_score);
+            let new_alpha = alpha.max(new_best);
+            if new_alpha >= beta {
+                new_best
+            } else {
+                max_search(state, rest, depth, new_alpha, beta, perspective, new_best)
+            }
+        }
+    }
+}
+
+min_search(state: &GameState, moves: &[Move], depth: u32, alpha: i32, beta: i32, perspective: Player, best: i32) -> i32 {
+
+}
+
 #[cfg(test)]
 mod engine_tests;
