@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::board::Board;
 use crate::types::*;
 use crate::game::{ apply_move };
-use crate::rules::{ legal_moves, legal_placements, opponent };
+use crate::rules::{ legal_moves, legal_placements, opponent, is_occupied, neighbors };
 
 pub fn all_legal_placements(state: &GameState, player: Player) -> Vec<Move> {
     let positions = legal_placements(&state.board, player);
@@ -43,13 +43,37 @@ pub fn all_legal_moves(state: &GameState) -> Vec<Move> {
     all_legal_moves_for(state, state.turn)
 }
 
+fn placement_count(state: &GameState, player: Player) -> usize {
+    legal_placements(&state.board, player).len() * state.unplaced[&player].len()
+}
+
+fn movement_count(state: &GameState, player: Player) -> usize {
+    state.board.stacks.iter()
+        .filter(|(_,stack)| stack.last().map(|piece| piece.owner) == Some(player))
+        .map(|(pos,_)| legal_moves(pos, state, player).len())
+        .sum()
+}
+
 // State evaluation heuristics
 fn mobility(state: &GameState, player: Player) -> i32 {
-    all_legal_moves_for(state, player).len() as i32
+    (placement_count(state, player) + movement_count(state, player)) as i32
+}
+
+fn queen_position(state: &GameState, player: Player) -> Option<Position> {
+    state.board.stacks.iter()
+        .find(|(_, stack)| stack.iter().any(|p| p.kind == PieceKind::Bee && p.owner == player))
+        .map(|(&pos,_)| pos)
+}
+
+fn queen_danger(state: &GameState, player: Player) -> i32 {
+    match queen_position(state, player) {
+        None => 0,
+        Some(pos) => neighbors(pos).iter().filter(|&&n| is_occupied(n, &state.board)).count() as i32,
+    }
 }
 
 pub fn evaluate(state: &GameState, player: Player) -> i32 {
-    mobility(state, player) - mobility(state, opponent(player))
+    queen_danger(state, opponent(player)) - queen_danger(state, player)
 }
 
 const WIN_SCORE: i32 = 1_000_000;
