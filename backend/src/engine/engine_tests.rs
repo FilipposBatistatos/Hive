@@ -115,10 +115,33 @@ proptest! {
     }
 }
 
-// proptest! {
-//     #[test]
-//     fn all_legal_moves_only_contains_pass_if_otherwise_empty()
-// }
+proptest! {
+    #[test]
+    fn all_legal_moves_only_contains_pass_if_otherwise_empty(
+        board in arbitrary_board(8),
+        player in arbitrary_player(),
+        hand in arbitrary_hand(),
+    ) {
+        let state = GameState {
+            board: board,
+            turn: player,
+            turn_number: 1,
+            unplaced: HashMap::from([
+                (player, hand),
+                (opponent(player), HashMap::new()),
+            ]),
+            result: None
+        };
+
+        let moves = all_legal_moves(&state);
+        let length = moves.len();
+        let contains_pass = moves
+            .into_iter()
+            .any(|mv| mv == Move::Pass);
+
+        prop_assert!(!contains_pass || length == 1) 
+    }
+}
 
 proptest! {
     #[test]
