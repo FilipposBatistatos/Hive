@@ -91,6 +91,61 @@ fn minimax_blocks_winning_move() {
     "#]].assert_debug_eq(&best_move(&state, 2));
 }
 
+fn mid_game_state() -> GameState {
+    let board = Board::new()
+        .place_piece(Position { q: 0, r: 0 },  Piece { kind: PieceKind::Bee, owner: Player::White })
+        .place_piece(Position { q: 1, r: 0 },  Piece { kind: PieceKind::Bee, owner: Player::Black })
+        .place_piece(Position { q: 0, r: -1 }, Piece { kind: PieceKind::Ant, owner: Player::White })
+        .place_piece(Position { q: -1, r: 0 }, Piece { kind: PieceKind::Ant, owner: Player::White })
+        .place_piece(Position { q: -1, r: 1 }, Piece { kind: PieceKind::Spider, owner: Player::White })
+        .place_piece(Position { q: 0, r: 1 },  Piece { kind: PieceKind::Grasshopper, owner: Player::White })
+        .place_piece(Position { q: 1, r: 1 },  Piece { kind: PieceKind::Beetle, owner: Player::White })
+        .place_piece(Position { q: 2, r: -1 }, Piece { kind: PieceKind::Ant, owner: Player::Black })
+        .place_piece(Position { q: 1, r: -1 }, Piece { kind: PieceKind::Ant, owner: Player::Black })
+        .place_piece(Position { q: 2, r: 0 },  Piece { kind: PieceKind::Spider, owner: Player::Black })
+        .place_piece(Position { q: 2, r: 1 },  Piece { kind: PieceKind::Grasshopper, owner: Player::Black })
+        .place_piece(Position { q: 1, r: 2 },  Piece { kind: PieceKind::Beetle, owner: Player::Black });
+
+    GameState {
+        board,
+        turn: Player::White,
+        turn_number: 13,
+        unplaced: HashMap::from([
+            (Player::White, HashMap::from([
+                (PieceKind::Ant, 1),
+                (PieceKind::Spider, 1),
+                (PieceKind::Beetle, 1),
+                (PieceKind::Grasshopper, 2),
+            ])),
+            (Player::Black, HashMap::from([
+                (PieceKind::Ant, 1),
+                (PieceKind::Spider, 1),
+                (PieceKind::Beetle, 1),
+                (PieceKind::Grasshopper, 2),
+            ])),
+        ]),
+        result: None,
+    }
+}
+
+// `cargo test bench -- --ignored --nocapture`
+#[test]
+#[ignore]
+fn benchmark() {
+    let state = mid_game_state();
+    for depth in 1..=4 {
+        let start = std::time::Instant::now();
+        let _mv = best_move_pruned(&state, depth);
+        println!("depth {}: {:?}", depth, start.elapsed());
+    }
+}
+
+// #[test]
+// #[ignore]
+// fn profile_evaluate() {
+
+// }
+
 use proptest::prelude::*;
 
 proptest! {
@@ -161,7 +216,7 @@ proptest! {
             result: None,
         };
 
-        let moves = all_legal_placements(&state);
+        let moves = all_legal_placements(&state, player);
         let positions = legal_placements(&board, player);
 
         prop_assert_eq!(moves.len(), positions.len() * hand.len());

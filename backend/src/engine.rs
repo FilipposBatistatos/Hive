@@ -5,9 +5,9 @@ use crate::types::*;
 use crate::game::{ apply_move };
 use crate::rules::{ legal_moves, legal_placements, opponent };
 
-pub fn all_legal_placements(state: &GameState) -> Vec<Move> {
-    let positions = legal_placements(&state.board, state.turn);
-    let pieces = &state.unplaced[&state.turn];
+pub fn all_legal_placements(state: &GameState, player: Player) -> Vec<Move> {
+    let positions = legal_placements(&state.board, player);
+    let pieces = &state.unplaced[&player];
 
     positions
         .iter()
@@ -17,21 +17,21 @@ pub fn all_legal_placements(state: &GameState) -> Vec<Move> {
         .collect()
 }
 
-pub fn all_legal_movement(state: &GameState) -> Vec<Move> {
+pub fn all_legal_movement(state: &GameState, player: Player) -> Vec<Move> {
     // Go over all our pieces on the board
     state.board.stacks
         .iter()
-        .filter(|(_, stack)| stack.last().map(|piece| piece.owner) == Some(state.turn))
-        .flat_map(|(pos, _)| legal_moves(pos, state))
+        .filter(|(_, stack)| stack.last().map(|piece| piece.owner) == Some(player))
+        .flat_map(|(pos, _)| legal_moves(pos, state, player))
         .collect()
 }
 
-pub fn all_legal_moves(state: &GameState) -> Vec<Move> {
-    let moves: Vec<Move> = all_legal_movement(state)
+pub fn all_legal_moves_for(state: &GameState, player: Player) -> Vec<Move> {
+    let moves: Vec<Move> = all_legal_movement(state, player)
         .into_iter()
-        .chain(all_legal_placements(state))
+        .chain(all_legal_placements(state, player))
         .collect();
-
+    
     if moves.is_empty() {
         vec![Move::Pass]
     } else {
@@ -39,10 +39,13 @@ pub fn all_legal_moves(state: &GameState) -> Vec<Move> {
     }
 }
 
+pub fn all_legal_moves(state: &GameState) -> Vec<Move> {
+    all_legal_moves_for(state, state.turn)
+}
+
 // State evaluation heuristics
 fn mobility(state: &GameState, player: Player) -> i32 {
-    let p = GameState { turn: player, ..state.clone() };
-    all_legal_moves(&p).len() as i32
+    all_legal_moves_for(state, player).len() as i32
 }
 
 pub fn evaluate(state: &GameState, player: Player) -> i32 {
@@ -79,7 +82,19 @@ pub fn best_move(state: &GameState, depth: u32) -> Move {
         })
         .max_by_key(|&(_, score)| score)
         .map(|(mv, _)| mv)
-        .expect("all_legal_moves never returns an mepty list")
+        .expect("all_legal_moves never returns an empty list")
+}
+
+pub fn best_move_pruned(state: &GameState, depth: u32) -> Move {
+    all_legal_moves(state)
+        .into_iter()
+        .map(|mv| {
+            let score = alpha_beta(&apply_move(state, mv.clone()), depth - 1, i32::MIN, i32::MAX, state.turn);
+            (mv, score)
+        })
+        .max_by_key(|&(_, score)| score)
+        .map(|(mv, _)| mv)
+        .expect("all_legal_moves never return an empty list")
 }
 
 pub fn alpha_beta(state: &GameState, depth: u32, alpha: i32, beta: i32, maximising: Player) -> i32 {
