@@ -3,11 +3,11 @@ use std::collections::HashSet;
 use crate::board::Board;
 use crate::types::*;
 
-pub fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
+pub fn legal_moves(pos: &Position, game: &GameState, player: Player) -> Vec<Move> {
     // Generates legal moves based on the selected piece
     
     // If the bee is not placed you cannot move anything
-    if game.unplaced[&game.turn]
+    if game.unplaced[&player]
         .contains_key(&PieceKind::Bee)
     {
             return vec![];                
@@ -18,7 +18,7 @@ pub fn legal_moves(pos: &Position, game: &GameState) -> Vec<Move> {
         .get(pos)
         .and_then(|stack| stack.last()) {
             
-        if piece.owner != game.turn {
+        if piece.owner != player {
             return vec![];
         }
 

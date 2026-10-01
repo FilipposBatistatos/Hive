@@ -66,7 +66,7 @@ pub fn new_game() -> JsValue {
 pub fn legal_moves_for_piece_json(state_js: JsValue, pos_js: JsValue) -> JsValue {
     let state: GameState = serde_wasm_bindgen::from_value(state_js).unwrap();
     let pos: Position = serde_wasm_bindgen::from_value(pos_js).unwrap();
-    let moves = legal_moves(&pos, &state);
+    let moves = legal_moves(&pos, &state, state.turn);
     to_js(&moves)
 }
 
