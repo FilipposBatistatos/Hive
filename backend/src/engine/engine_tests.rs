@@ -135,7 +135,7 @@ fn benchmark() {
     let state = mid_game_state();
     for depth in 1..=4 {
         let start = std::time::Instant::now();
-        let _mv = best_move_pruned(&state, depth);
+        let _mv = best_move_timed(&state, Duration::from_secs(depth));
         println!("depth {}: {:?}", depth, start.elapsed());
     }
 }
