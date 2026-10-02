@@ -37,7 +37,7 @@ pub enum GameResult {
     Draw,
 }
 
-#[derive(Eq, PartialEq, Serialize, Deserialize, Clone, Debug)]
+#[derive(Eq, PartialEq, Serialize, Deserialize, Copy, Clone, Debug)]
 pub enum Move {
     Place { kind: PieceKind, at: Position },
     Move { from: Position, to: Position},

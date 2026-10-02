@@ -84,8 +84,8 @@ fn minimax_blocks_winning_move() {
                 r: 2,
             },
             to: Position {
-                q: -1,
-                r: -2,
+                q: -2,
+                r: -1,
             },
         }
     "#]].assert_debug_eq(&best_move(&state, 2));

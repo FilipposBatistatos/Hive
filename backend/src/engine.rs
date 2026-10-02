@@ -72,6 +72,24 @@ fn queen_danger(state: &GameState, player: Player) -> i32 {
     }
 }
 
+fn ordered_score(state: &GameState, mv: &Move) -> i32 {
+    let destination = match mv {
+        Move::Place {at, ..} => *at,
+        Move::Move {to, ..} => *to,
+        Move::Pass => return 0,
+    };
+    match queen_position(state, opponent(state.turn)) {
+        Some(opp_queen) if neighbors(opp_queen).contains(&destination) => 1,
+        _ => 0,
+    }
+}
+
+fn ordered_moves(state: &GameState, perspective: Player, maximising: bool) -> Vec<Move> {
+    let mut moves = all_legal_moves(state);
+    moves.sort_by_key(|mv| std::cmp::Reverse(ordered_score(state, mv)));
+    moves
+}
+
 pub fn evaluate(state: &GameState, player: Player) -> i32 {
     queen_danger(state, opponent(player)) - queen_danger(state, player)
 }
@@ -87,7 +105,7 @@ pub fn minimax(state: &GameState, depth: u32, maximising: Player) -> i32 {
         Some(GameResult::Draw) => 0,
         None if depth == 0 => evaluate(state, maximising),
         None => {
-            let scores = all_legal_moves(state)
+            let scores = ordered_moves(state, maximising, state.turn == maximising)
                 .into_iter()
                 .map(|mv| minimax(&apply_move(state, mv), depth - 1, maximising));
 
@@ -130,7 +148,7 @@ pub fn alpha_beta(state: &GameState, depth: u32, alpha: i32, beta: i32, maximisi
         Some(GameResult::Draw) => 0,
         None if depth == 0 => evaluate(state, maximising),
         None => {
-            let moves = all_legal_moves(state);
+            let moves = ordered_moves(state, maximising, state.turn == maximising);
             if state.turn == maximising {
                 max_search(state, &moves, depth, alpha, beta, maximising, i32::MIN)
             } else {
