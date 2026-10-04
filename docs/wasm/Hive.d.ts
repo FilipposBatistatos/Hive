@@ -3,6 +3,8 @@
 
 export function apply_move_json(state_js: any, mv_js: any): any;
 
+export function get_ai_move_json(state_js: any, budget_ms: number): any;
+
 export function get_legal_placements(state_js: any): any;
 
 export function init_panic_hook(): void;
@@ -16,6 +18,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
     readonly apply_move_json: (a: any, b: any) => any;
+    readonly get_ai_move_json: (a: any, b: number) => any;
     readonly get_legal_placements: (a: any) => any;
     readonly legal_moves_for_piece_json: (a: any, b: any) => any;
     readonly new_game: () => any;

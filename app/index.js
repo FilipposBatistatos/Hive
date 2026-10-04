@@ -1,4 +1,11 @@
-import init, { init_panic_hook, apply_move_json, get_legal_placements, legal_moves_for_piece_json, new_game } from "./src/wasm/Hive.js";
+import init, { 
+    init_panic_hook,
+    apply_move_json, 
+    get_legal_placements, 
+    legal_moves_for_piece_json, 
+    new_game, 
+    get_ai_move_json 
+} from "./src/wasm/Hive.js";
 
 async function main() {
     await init();
@@ -20,10 +27,22 @@ async function main() {
     });
 
     app.ports.requestMovesForPiece.subscribe(([state, pos]) => {
-        console.log("requestMovesForPiece fired, pos:", pos);
+        //console.log("requestMovesForPiece fired, pos:", pos);
         const result = legal_moves_for_piece_json(state, pos);
-        console.log("legal_moves_for_piece_json result:", result);
+        //console.log("legal_moves_for_piece_json result:", result);
         app.ports.receiveMovesForPiece.send(result);
+    });
+
+    app.ports.requestAiMove.subscribe(([state, budgetMs]) => {
+        setTimeout(() => {
+            try {
+                const result = get_ai_move_json(state, budgetMs);
+                console.log("AI move result", result);
+                app.ports.receiveAiMove.send(result);
+            } catch (e) {
+                console.error("get_ai_move_json threw:", e);
+            }
+        }, 0);
     });
 }
 

@@ -1,5 +1,6 @@
 use std::collections::HashSet;
-use std::time:: { Instant, Duration };
+use std::time::Duration;
+use web_time::Instant;
 
 use crate::board::Board;
 use crate::types::*;
@@ -7,15 +8,31 @@ use crate::game::{ apply_move };
 use crate::rules::{ legal_moves, legal_placements, opponent, is_occupied, neighbors };
 
 // ====================== Evaluation ======================
+fn bee_placement_deadline(player: Player) -> u32 {
+    match player {
+        Player::White => 7,
+        Player::Black => 8,
+    }
+}
+
+fn must_place_bee(state: &GameState, player: Player) -> bool {
+    state.unplaced[&player].contains_key(&PieceKind::Bee)
+        && state.turn_number >= bee_placement_deadline(player)
+}
+
 pub fn all_legal_placements(state: &GameState, player: Player) -> Vec<Move> {
     let positions = legal_placements(&state.board, player);
     let pieces = &state.unplaced[&player];
 
+    let kinds: Vec<PieceKind> = if must_place_bee(state, player) {
+        vec![PieceKind::Bee]
+    } else {
+        pieces.keys().copied().collect()
+    };
+
     positions
         .iter()
-        .flat_map(|&pos| {
-            pieces.keys().map(move |&kind| Move::Place { kind, at: pos })
-        })
+        .flat_map(|&pos| kinds.iter().map(move |&kind| Move::Place { kind, at:pos }))
         .collect()
 }
 
@@ -86,7 +103,7 @@ fn ordered_score(state: &GameState, mv: &Move) -> i32 {
     }
 }
 
-fn ordered_moves(state: &GameState, perspective: Player, maximising: bool) -> Vec<Move> {
+fn ordered_moves(state: &GameState, _perspective: Player, _maximising: bool) -> Vec<Move> {
     let mut moves = all_legal_moves(state);
     moves.sort_by_key(|mv| std::cmp::Reverse(ordered_score(state, mv)));
     moves
@@ -153,7 +170,7 @@ fn best_move_alpha_beta(state: &GameState, depth: u32) -> Move {
         .0
 }
 
-fn best_move_timed(state: &GameState, budget: Duration) -> Move {
+pub fn best_move_timed(state: &GameState, budget: Duration) -> Move {
     let deadline = Instant::now() + budget;
     let mut best = best_move_inner(state, 1, None)
         .expect("best_move_inner always returns a move with no deadline");
@@ -172,7 +189,7 @@ pub fn alpha_beta(state: &GameState, depth: u32, alpha: i32, beta: i32, maximisi
         .expect("Alpha_beta with no deadline must always produce a score")
 }
 
-pub fn alpha_beta_timed(state: &GameState, depth: u32, alpha: i32, beta: i32, maximising: Player, deadline: Instant) -> Option<i32> {
+fn alpha_beta_timed(state: &GameState, depth: u32, alpha: i32, beta: i32, maximising: Player, deadline: Instant) -> Option<i32> {
     alpha_beta_inner(state, depth, alpha, beta, maximising, Some(deadline))
 }
 

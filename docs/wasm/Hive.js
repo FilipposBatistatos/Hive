@@ -12,6 +12,16 @@ export function apply_move_json(state_js, mv_js) {
 
 /**
  * @param {any} state_js
+ * @param {number} budget_ms
+ * @returns {any}
+ */
+export function get_ai_move_json(state_js, budget_ms) {
+    const ret = wasm.get_ai_move_json(state_js, budget_ms);
+    return ret;
+}
+
+/**
+ * @param {any} state_js
  * @returns {any}
  */
 export function get_legal_placements(state_js) {
@@ -208,6 +218,14 @@ function __wbg_get_imports() {
             const ret = arg0.next;
             return ret;
         },
+        __wbg_now_e7c6795a7f81e10f: function(arg0) {
+            const ret = arg0.now();
+            return ret;
+        },
+        __wbg_performance_3fcf6e32a7e1ed0a: function(arg0) {
+            const ret = arg0.performance;
+            return ret;
+        },
         __wbg_prototypesetcall_de8e0d9553586985: function(arg0, arg1, arg2) {
             Uint8Array.prototype.set.call(getArrayU8FromWasm0(arg0, arg1), arg2);
         },
@@ -223,6 +241,22 @@ function __wbg_get_imports() {
             const len1 = WASM_VECTOR_LEN;
             getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
             getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+        },
+        __wbg_static_accessor_GLOBAL_THIS_466428f93b4eaa76: function() {
+            const ret = typeof globalThis === 'undefined' ? null : globalThis;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+        },
+        __wbg_static_accessor_GLOBAL_c7aea38d4de089bc: function() {
+            const ret = typeof global === 'undefined' ? null : global;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+        },
+        __wbg_static_accessor_SELF_42d4fae05e59267a: function() {
+            const ret = typeof self === 'undefined' ? null : self;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+        },
+        __wbg_static_accessor_WINDOW_e0db14a0eba6a812: function() {
+            const ret = typeof window === 'undefined' ? null : window;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
         },
         __wbg_value_1e2369fab29b420e: function(arg0) {
             const ret = arg0.value;

@@ -140,12 +140,6 @@ fn benchmark() {
     }
 }
 
-// #[test]
-// #[ignore]
-// fn profile_evaluate() {
-
-// }
-
 use proptest::prelude::*;
 
 proptest! {

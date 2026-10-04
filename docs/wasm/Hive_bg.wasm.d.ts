@@ -2,6 +2,7 @@
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
 export const apply_move_json: (a: any, b: any) => any;
+export const get_ai_move_json: (a: any, b: number) => any;
 export const get_legal_placements: (a: any) => any;
 export const legal_moves_for_piece_json: (a: any, b: any) => any;
 export const new_game: () => any;

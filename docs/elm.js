@@ -77,14 +77,14 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
   return fun.a === 9 ? fun.f(a, b, c, d, e, f, g, h, i) : fun(a)(b)(c)(d)(e)(f)(g)(h)(i);
 }
 
+console.warn('Compiled in DEV mode. Follow the advice at https://elm-lang.org/0.19.2/optimize for better performance and smaller assets.');
 
 
+var _List_Nil_UNUSED = { $: 0 };
+var _List_Nil = { $: '[]' };
 
-var _List_Nil = { $: 0 };
-var _List_Nil_UNUSED = { $: '[]' };
-
-function _List_Cons(hd, tl) { return { $: 1, a: hd, b: tl }; }
-function _List_Cons_UNUSED(hd, tl) { return { $: '::', a: hd, b: tl }; }
+function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
+function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
 
 
 var _List_cons = F2(_List_Cons);
@@ -315,12 +315,12 @@ var _JsArray_appendN = F3(function(n, dest, source)
 
 // LOG
 
-var _Debug_log = F2(function(tag, value)
+var _Debug_log_UNUSED = F2(function(tag, value)
 {
 	return value;
 });
 
-var _Debug_log_UNUSED = F2(function(tag, value)
+var _Debug_log = F2(function(tag, value)
 {
 	console.log(tag + ': ' + _Debug_toString(value));
 	return value;
@@ -346,12 +346,12 @@ function _Debug_todoCase(moduleName, region, value)
 
 // TO STRING
 
-function _Debug_toString(value)
+function _Debug_toString_UNUSED(value)
 {
 	return '<internals>';
 }
 
-function _Debug_toString_UNUSED(value)
+function _Debug_toString(value)
 {
 	return _Debug_toAnsiString(false, value);
 }
@@ -536,13 +536,13 @@ function _Debug_toHexDigit(n)
 // CRASH
 
 
-function _Debug_crash(identifier)
+function _Debug_crash_UNUSED(identifier)
 {
 	throw new Error('https://github.com/elm/core/blob/1.0.0/hints/' + identifier + '.md');
 }
 
 
-function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
+function _Debug_crash(identifier, fact1, fact2, fact3, fact4)
 {
 	switch(identifier)
 	{
@@ -600,11 +600,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.W.F === region.ac.F)
+	if (region.start.line === region.end.line)
 	{
-		return 'on line ' + region.W.F;
+		return 'on line ' + region.start.line;
 	}
-	return 'on lines ' + region.W.F + ' through ' + region.ac.F;
+	return 'on lines ' + region.start.line + ' through ' + region.end.line;
 }
 
 
@@ -642,7 +642,7 @@ function _Utils_eqHelp(x, y, depth, stack)
 		return true;
 	}
 
-	/**_UNUSED/
+	/**/
 	if (x.$ === 'Set_elm_builtin')
 	{
 		x = $elm$core$Set$toList(x);
@@ -655,7 +655,7 @@ function _Utils_eqHelp(x, y, depth, stack)
 	}
 	//*/
 
-	/**/
+	/**_UNUSED/
 	if (x.$ < 0)
 	{
 		x = $elm$core$Dict$toList(x);
@@ -690,7 +690,7 @@ function _Utils_cmp(x, y, ord)
 		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
 	}
 
-	/**_UNUSED/
+	/**/
 	if (x instanceof String)
 	{
 		var a = x.valueOf();
@@ -699,10 +699,10 @@ function _Utils_cmp(x, y, ord)
 	}
 	//*/
 
-	/**/
+	/**_UNUSED/
 	if (typeof x.$ === 'undefined')
 	//*/
-	/**_UNUSED/
+	/**/
 	if (x.$[0] === '#')
 	//*/
 	{
@@ -732,17 +732,17 @@ var _Utils_compare = F2(function(x, y)
 
 // COMMON VALUES
 
-var _Utils_Tuple0 = 0;
-var _Utils_Tuple0_UNUSED = { $: '#0' };
+var _Utils_Tuple0_UNUSED = 0;
+var _Utils_Tuple0 = { $: '#0' };
 
-function _Utils_Tuple2(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2_UNUSED(a, b) { return { $: '#2', a: a, b: b }; }
+function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
 
-function _Utils_Tuple3(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3_UNUSED(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
 
-function _Utils_chr(c) { return c; }
-function _Utils_chr_UNUSED(c) { return new String(c); }
+function _Utils_chr_UNUSED(c) { return c; }
+function _Utils_chr(c) { return new String(c); }
 
 
 // RECORDS
@@ -1212,7 +1212,7 @@ function _Char_toLocaleLower(char)
 
 
 
-/**_UNUSED/
+/**/
 function _Json_errorToString(error)
 {
 	return $elm$json$Json$Decode$errorToString(error);
@@ -1616,11 +1616,11 @@ var _Json_encode = F2(function(indentLevel, value)
 	return JSON.stringify(_Json_unwrap(value), null, indentLevel) + '';
 });
 
-function _Json_wrap_UNUSED(value) { return { $: 0, a: value }; }
-function _Json_unwrap_UNUSED(value) { return value.a; }
+function _Json_wrap(value) { return { $: 0, a: value }; }
+function _Json_unwrap(value) { return value.a; }
 
-function _Json_wrap(value) { return value; }
-function _Json_unwrap(value) { return value; }
+function _Json_wrap_UNUSED(value) { return value; }
+function _Json_unwrap_UNUSED(value) { return value; }
 
 function _Json_emptyArray() { return []; }
 function _Json_emptyObject() { return {}; }
@@ -1861,9 +1861,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aJ,
-		impl.aR,
-		impl.aP,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function() { return function() {} }
 	);
 });
@@ -1876,7 +1876,7 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 function _Platform_initialize(flagDecoder, args, init, update, subscriptions, stepperBuilder)
 {
 	var result = A2(_Json_run, flagDecoder, _Json_wrap(args ? args['flags'] : undefined));
-	$elm$core$Result$isOk(result) || _Debug_crash(2 /**_UNUSED/, _Json_errorToString(result.a) /**/);
+	$elm$core$Result$isOk(result) || _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
 	var managers = {};
 	var initPair = init(result.a);
 	var model = initPair.a;
@@ -2320,7 +2320,7 @@ function _Platform_setupIncomingPort(name, sendToApp)
 //
 
 
-function _Platform_export(exports)
+function _Platform_export_UNUSED(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsProd(scope['Elm'], exports)
@@ -2341,7 +2341,7 @@ function _Platform_mergeExportsProd(obj, exports)
 }
 
 
-function _Platform_export_UNUSED(exports)
+function _Platform_export(exports)
 {
 	scope['Elm']
 		? _Platform_mergeExportsDebug('Elm', scope['Elm'], exports)
@@ -2381,10 +2381,10 @@ var _VirtualDom_init = F4(function(virtualNode, flagDecoder, debugMetadata, args
 {
 	// NOTE: this function needs _Platform_export available to work
 
-	/**/
+	/**_UNUSED/
 	var node = args['node'];
 	//*/
-	/**_UNUSED/
+	/**/
 	var node = args && args['node'] ? args['node'] : _Debug_crash(0);
 	//*/
 
@@ -2659,14 +2659,14 @@ function _VirtualDom_noInnerHtmlOrFormAction(key)
 function _VirtualDom_noJavaScriptUri(value)
 {
 	return _VirtualDom_RE_js.test(value)
-		? /**/''//*//**_UNUSED/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+		? /**_UNUSED/''//*//**/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
 }
 
 function _VirtualDom_noJavaScriptOrHtmlUri(value)
 {
 	return _VirtualDom_RE_js_html.test(value)
-		? /**/''//*//**_UNUSED/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+		? /**_UNUSED/''//*//**/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
 }
 
@@ -2678,7 +2678,7 @@ function _VirtualDom_noJavaScriptOrHtmlJson(value)
 		(Array.isArray(_Json_unwrap(value)) && _VirtualDom_RE_js_html.test(String(_Json_unwrap(value))))
 	)
 		? _Json_wrap(
-			/**/''//*//**_UNUSED/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+			/**_UNUSED/''//*//**/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		) : value;
 }
 
@@ -2727,9 +2727,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		u: func(record.u),
-		X: record.X,
-		S: record.S
+		message: func(record.message),
+		stopPropagation: record.stopPropagation,
+		preventDefault: record.preventDefault
 	}
 });
 
@@ -2997,11 +2997,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.u;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.X;
+		var message = !tag ? value : tag < 3 ? value.a : value.message;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.stopPropagation;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.S) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.preventDefault) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3951,15 +3951,15 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aJ,
-		impl.aR,
-		impl.aP,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
-			var view = impl.aS;
-			/**/
+			var view = impl.view;
+			/**_UNUSED/
 			var domNode = args['node'];
 			//*/
-			/**_UNUSED/
+			/**/
 			var domNode = args && args['node'] ? args['node'] : _Debug_crash(0);
 			//*/
 			var currNode = _VirtualDom_virtualize(domNode);
@@ -3987,12 +3987,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aJ,
-		impl.aR,
-		impl.aP,
+		impl.init,
+		impl.update,
+		impl.subscriptions,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.U && impl.U(sendToApp)
-			var view = impl.aS;
+			var divertHrefToApp = impl.setup && impl.setup(sendToApp)
+			var view = impl.view;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -4000,12 +4000,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.aC);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.body);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aQ) && (_VirtualDom_doc.title = title = doc.aQ);
+				(title !== doc.title) && (_VirtualDom_doc.title = title = doc.title);
 			});
 		}
 	);
@@ -4061,12 +4061,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aL;
-	var onUrlRequest = impl.aM;
+	var onUrlChange = impl.onUrlChange;
+	var onUrlRequest = impl.onUrlRequest;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		U: function(sendToApp)
+		setup: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4082,9 +4082,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.ap === next.ap
-							&& curr.ag === next.ag
-							&& curr.am.a === next.am.a
+							&& curr.protocol === next.protocol
+							&& curr.host === next.host
+							&& curr.port_.a === next.port_.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4092,13 +4092,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		aJ: function(flags)
+		init: function(flags)
 		{
-			return A3(impl.aJ, flags, _Browser_getUrl(), key);
+			return A3(impl.init, flags, _Browser_getUrl(), key);
 		},
-		aS: impl.aS,
-		aR: impl.aR,
-		aP: impl.aP
+		view: impl.view,
+		update: impl.update,
+		subscriptions: impl.subscriptions
 	});
 }
 
@@ -4164,17 +4164,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { aH: 'hidden', aD: 'visibilitychange' }
+		? { hidden: 'hidden', change: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { aH: 'mozHidden', aD: 'mozvisibilitychange' }
+		? { hidden: 'mozHidden', change: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { aH: 'msHidden', aD: 'msvisibilitychange' }
+		? { hidden: 'msHidden', change: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { aH: 'webkitHidden', aD: 'webkitvisibilitychange' }
-		: { aH: 'hidden', aD: 'visibilitychange' };
+		? { hidden: 'webkitHidden', change: 'webkitvisibilitychange' }
+		: { hidden: 'hidden', change: 'visibilitychange' };
 }
 
 
@@ -4255,12 +4255,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		at: _Browser_getScene(),
-		aw: {
-			ay: _Browser_window.pageXOffset,
-			az: _Browser_window.pageYOffset,
-			ax: _Browser_doc.documentElement.clientWidth,
-			af: _Browser_doc.documentElement.clientHeight
+		scene: _Browser_getScene(),
+		viewport: {
+			x: _Browser_window.pageXOffset,
+			y: _Browser_window.pageYOffset,
+			width: _Browser_doc.documentElement.clientWidth,
+			height: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4270,8 +4270,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		ax: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		af: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		width: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		height: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4294,15 +4294,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			at: {
-				ax: node.scrollWidth,
-				af: node.scrollHeight
+			scene: {
+				width: node.scrollWidth,
+				height: node.scrollHeight
 			},
-			aw: {
-				ay: node.scrollLeft,
-				az: node.scrollTop,
-				ax: node.clientWidth,
-				af: node.clientHeight
+			viewport: {
+				x: node.scrollLeft,
+				y: node.scrollTop,
+				width: node.clientWidth,
+				height: node.clientHeight
 			}
 		};
 	});
@@ -4332,18 +4332,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			at: _Browser_getScene(),
-			aw: {
-				ay: x,
-				az: y,
-				ax: _Browser_doc.documentElement.clientWidth,
-				af: _Browser_doc.documentElement.clientHeight
+			scene: _Browser_getScene(),
+			viewport: {
+				x: x,
+				y: y,
+				width: _Browser_doc.documentElement.clientWidth,
+				height: _Browser_doc.documentElement.clientHeight
 			},
-			aF: {
-				ay: x + rect.left,
-				az: y + rect.top,
-				ax: rect.width,
-				af: rect.height
+			element: {
+				x: x + rect.left,
+				y: y + rect.top,
+				width: rect.width,
+				height: rect.height
 			}
 		};
 	});
@@ -4378,8 +4378,8 @@ function _Browser_load(url)
 		}
 	}));
 }
-var $elm$core$Basics$EQ = 1;
-var $elm$core$Basics$LT = 0;
+var $elm$core$Basics$EQ = {$: 'EQ'};
+var $elm$core$Basics$LT = {$: 'LT'};
 var $elm$core$List$cons = _List_cons;
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
 var $elm$core$Array$foldr = F3(
@@ -4388,7 +4388,7 @@ var $elm$core$Array$foldr = F3(
 		var tail = _v0.d;
 		var helper = F2(
 			function (node, acc) {
-				if (!node.$) {
+				if (node.$ === 'SubTree') {
 					var subTree = node.a;
 					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
 				} else {
@@ -4409,7 +4409,7 @@ var $elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
 		while (true) {
-			if (t.$ === -2) {
+			if (t.$ === 'RBEmpty_elm_builtin') {
 				return acc;
 			} else {
 				var key = t.b;
@@ -4454,37 +4454,37 @@ var $elm$core$Dict$keys = function (dict) {
 		dict);
 };
 var $elm$core$Set$toList = function (_v0) {
-	var dict = _v0;
+	var dict = _v0.a;
 	return $elm$core$Dict$keys(dict);
 };
-var $elm$core$Basics$GT = 2;
+var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Result$Err = function (a) {
-	return {$: 1, a: a};
+	return {$: 'Err', a: a};
 };
 var $elm$json$Json$Decode$Failure = F2(
 	function (a, b) {
-		return {$: 3, a: a, b: b};
+		return {$: 'Failure', a: a, b: b};
 	});
 var $elm$json$Json$Decode$Field = F2(
 	function (a, b) {
-		return {$: 0, a: a, b: b};
+		return {$: 'Field', a: a, b: b};
 	});
 var $elm$json$Json$Decode$Index = F2(
 	function (a, b) {
-		return {$: 1, a: a, b: b};
+		return {$: 'Index', a: a, b: b};
 	});
 var $elm$core$Result$Ok = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Ok', a: a};
 };
 var $elm$json$Json$Decode$OneOf = function (a) {
-	return {$: 2, a: a};
+	return {$: 'OneOf', a: a};
 };
-var $elm$core$Basics$False = 1;
+var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Maybe$Just = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Just', a: a};
 };
-var $elm$core$Maybe$Nothing = {$: 1};
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -4609,12 +4609,12 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 		errorToStringHelp:
 		while (true) {
 			switch (error.$) {
-				case 0:
+				case 'Field':
 					var f = error.a;
 					var err = error.b;
 					var isSimple = function () {
 						var _v1 = $elm$core$String$uncons(f);
-						if (_v1.$ === 1) {
+						if (_v1.$ === 'Nothing') {
 							return false;
 						} else {
 							var _v2 = _v1.a;
@@ -4629,7 +4629,7 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 1:
+				case 'Index':
 					var i = error.a;
 					var err = error.b;
 					var indexName = '[' + ($elm$core$String$fromInt(i) + ']');
@@ -4638,7 +4638,7 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 					error = $temp$error;
 					context = $temp$context;
 					continue errorToStringHelp;
-				case 2:
+				case 'OneOf':
 					var errors = error.a;
 					if (!errors.b) {
 						return 'Ran into a Json.Decode.oneOf with no possibilities' + function () {
@@ -4702,7 +4702,7 @@ var $elm$json$Json$Decode$errorToStringHelp = F2(
 var $elm$core$Array$branchFactor = 32;
 var $elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
-		return {$: 0, a: a, b: b, c: c, d: d};
+		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
 	});
 var $elm$core$Elm$JsArray$empty = _JsArray_empty;
 var $elm$core$Basics$ceiling = _Basics_ceiling;
@@ -4717,7 +4717,7 @@ var $elm$core$Array$shiftStep = $elm$core$Basics$ceiling(
 var $elm$core$Array$empty = A4($elm$core$Array$Array_elm_builtin, 0, $elm$core$Array$shiftStep, $elm$core$Elm$JsArray$empty, $elm$core$Elm$JsArray$empty);
 var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var $elm$core$Array$Leaf = function (a) {
-	return {$: 1, a: a};
+	return {$: 'Leaf', a: a};
 };
 var $elm$core$Basics$apL = F2(
 	function (f, x) {
@@ -4737,7 +4737,7 @@ var $elm$core$Basics$max = F2(
 	});
 var $elm$core$Basics$mul = _Basics_mul;
 var $elm$core$Array$SubTree = function (a) {
-	return {$: 0, a: a};
+	return {$: 'SubTree', a: a};
 };
 var $elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
 var $elm$core$Array$compressNodes = F2(
@@ -4784,25 +4784,25 @@ var $elm$core$Array$treeFromBuilder = F2(
 	});
 var $elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
-		if (!builder.a) {
+		if (!builder.nodeListSize) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.c),
+				$elm$core$Elm$JsArray$length(builder.tail),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.c);
+				builder.tail);
 		} else {
-			var treeLen = builder.a * $elm$core$Array$branchFactor;
+			var treeLen = builder.nodeListSize * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.d) : builder.d;
-			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.a);
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.nodeList) : builder.nodeList;
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.nodeListSize);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.c) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.tail) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.c);
+				builder.tail);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -4815,7 +4815,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{d: nodeList, a: (len / $elm$core$Array$branchFactor) | 0, c: tail});
+					{nodeList: nodeList, nodeListSize: (len / $elm$core$Array$branchFactor) | 0, tail: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -4845,9 +4845,9 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
-var $elm$core$Basics$True = 0;
+var $elm$core$Basics$True = {$: 'True'};
 var $elm$core$Result$isOk = function (result) {
-	if (!result.$) {
+	if (result.$ === 'Ok') {
 		return true;
 	} else {
 		return false;
@@ -4858,31 +4858,33 @@ var $elm$json$Json$Decode$map2 = _Json_map2;
 var $elm$json$Json$Decode$succeed = _Json_succeed;
 var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
-		case 0:
+		case 'Normal':
 			return 0;
-		case 1:
+		case 'MayStopPropagation':
 			return 1;
-		case 2:
+		case 'MayPreventDefault':
 			return 2;
 		default:
 			return 3;
 	}
 };
 var $elm$browser$Browser$External = function (a) {
-	return {$: 1, a: a};
+	return {$: 'External', a: a};
 };
 var $elm$browser$Browser$Internal = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Internal', a: a};
 };
 var $elm$core$Basics$identity = function (x) {
 	return x;
 };
-var $elm$browser$Browser$Dom$NotFound = $elm$core$Basics$identity;
-var $elm$url$Url$Http = 0;
-var $elm$url$Url$Https = 1;
+var $elm$browser$Browser$Dom$NotFound = function (a) {
+	return {$: 'NotFound', a: a};
+};
+var $elm$url$Url$Http = {$: 'Http'};
+var $elm$url$Url$Https = {$: 'Https'};
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {ae: fragment, ag: host, ak: path, am: port_, ap: protocol, aq: query};
+		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -4918,7 +4920,7 @@ var $elm$url$Url$chompBeforePath = F5(
 					var i = _v0.a;
 					var _v1 = $elm$core$String$toInt(
 						A2($elm$core$String$dropLeft, i + 1, str));
-					if (_v1.$ === 1) {
+					if (_v1.$ === 'Nothing') {
 						return $elm$core$Maybe$Nothing;
 					} else {
 						var port_ = _v1;
@@ -5001,24 +5003,26 @@ var $elm$core$String$startsWith = _String_startsWith;
 var $elm$url$Url$fromString = function (str) {
 	return A2($elm$core$String$startsWith, 'http://', str) ? A2(
 		$elm$url$Url$chompAfterProtocol,
-		0,
+		$elm$url$Url$Http,
 		A2($elm$core$String$dropLeft, 7, str)) : (A2($elm$core$String$startsWith, 'https://', str) ? A2(
 		$elm$url$Url$chompAfterProtocol,
-		1,
+		$elm$url$Url$Https,
 		A2($elm$core$String$dropLeft, 8, str)) : $elm$core$Maybe$Nothing);
 };
 var $elm$core$Basics$never = function (_v0) {
 	never:
 	while (true) {
-		var nvr = _v0;
+		var nvr = _v0.a;
 		var $temp$_v0 = nvr;
 		_v0 = $temp$_v0;
 		continue never;
 	}
 };
-var $elm$core$Task$Perform = $elm$core$Basics$identity;
+var $elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
+};
 var $elm$core$Task$succeed = _Scheduler_succeed;
-var $elm$core$Task$init = $elm$core$Task$succeed(0);
+var $elm$core$Task$init = $elm$core$Task$succeed(_Utils_Tuple0);
 var $elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -5124,7 +5128,7 @@ var $elm$core$Task$sequence = function (tasks) {
 var $elm$core$Platform$sendToApp = _Platform_sendToApp;
 var $elm$core$Task$spawnCmd = F2(
 	function (router, _v0) {
-		var task = _v0;
+		var task = _v0.a;
 		return _Scheduler_spawn(
 			A2(
 				$elm$core$Task$andThen,
@@ -5136,7 +5140,7 @@ var $elm$core$Task$onEffects = F3(
 		return A2(
 			$elm$core$Task$map,
 			function (_v0) {
-				return 0;
+				return _Utils_Tuple0;
 			},
 			$elm$core$Task$sequence(
 				A2(
@@ -5146,38 +5150,45 @@ var $elm$core$Task$onEffects = F3(
 	});
 var $elm$core$Task$onSelfMsg = F3(
 	function (_v0, _v1, _v2) {
-		return $elm$core$Task$succeed(0);
+		return $elm$core$Task$succeed(_Utils_Tuple0);
 	});
 var $elm$core$Task$cmdMap = F2(
 	function (tagger, _v0) {
-		var task = _v0;
-		return A2($elm$core$Task$map, tagger, task);
+		var task = _v0.a;
+		return $elm$core$Task$Perform(
+			A2($elm$core$Task$map, tagger, task));
 	});
 _Platform_effectManagers['Task'] = _Platform_createManager($elm$core$Task$init, $elm$core$Task$onEffects, $elm$core$Task$onSelfMsg, $elm$core$Task$cmdMap);
 var $elm$core$Task$command = _Platform_leaf('Task');
 var $elm$core$Task$perform = F2(
 	function (toMessage, task) {
 		return $elm$core$Task$command(
-			A2($elm$core$Task$map, toMessage, task));
+			$elm$core$Task$Perform(
+				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$init = {r: $elm$core$Maybe$Nothing, i: $elm$core$Maybe$Nothing, s: _List_Nil, t: _List_Nil, m: $elm$core$Maybe$Nothing, o: $elm$core$Maybe$Nothing};
+var $author$project$Main$LocalPvp = {$: 'LocalPvp'};
+var $author$project$Main$init = {decodeErrorMsg: $elm$core$Maybe$Nothing, gameMode: $author$project$Main$LocalPvp, gameState: $elm$core$Maybe$Nothing, isThinking: false, legalMoveTargets: _List_Nil, legalPlacements: _List_Nil, selectedHandPiece: $elm$core$Maybe$Nothing, selectedHex: $elm$core$Maybe$Nothing};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$GotAiMove = function (a) {
+	return {$: 'GotAiMove', a: a};
+};
 var $author$project$Main$GotInitialState = function (a) {
-	return {$: 3, a: a};
+	return {$: 'GotInitialState', a: a};
 };
 var $author$project$Main$GotLegalPlacements = function (a) {
-	return {$: 4, a: a};
+	return {$: 'GotLegalPlacements', a: a};
 };
 var $author$project$Main$GotMovesForPiece = function (a) {
-	return {$: 6, a: a};
+	return {$: 'GotMovesForPiece', a: a};
 };
 var $author$project$Main$GotNewState = function (a) {
-	return {$: 5, a: a};
+	return {$: 'GotNewState', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Main$receiveAiMove = _Platform_incomingPort('receiveAiMove', $elm$json$Json$Decode$value);
 var $author$project$Main$receiveInitialState = _Platform_incomingPort('receiveInitialState', $elm$json$Json$Decode$value);
 var $author$project$Main$receiveLegalPlacements = _Platform_incomingPort('receiveLegalPlacements', $elm$json$Json$Decode$value);
 var $author$project$Main$receiveMovesForPiece = _Platform_incomingPort('receiveMovesForPiece', $elm$json$Json$Decode$value);
@@ -5189,22 +5200,23 @@ var $author$project$Main$subscriptions = function (_v0) {
 				$author$project$Main$receiveInitialState($author$project$Main$GotInitialState),
 				$author$project$Main$receiveLegalPlacements($author$project$Main$GotLegalPlacements),
 				$author$project$Main$receiveNewState($author$project$Main$GotNewState),
-				$author$project$Main$receiveMovesForPiece($author$project$Main$GotMovesForPiece)
+				$author$project$Main$receiveMovesForPiece($author$project$Main$GotMovesForPiece),
+				$author$project$Main$receiveAiMove($author$project$Main$GotAiMove)
 			]));
 };
-var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$Main$aiBudgetMs = 2000;
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$encodePieceKind = function (kind) {
 	return $elm$json$Json$Encode$string(
 		function () {
-			switch (kind) {
-				case 0:
+			switch (kind.$) {
+				case 'Bee':
 					return 'Bee';
-				case 1:
+				case 'Spider':
 					return 'Spider';
-				case 2:
+				case 'Beetle':
 					return 'Beetle';
-				case 3:
+				case 'Grasshopper':
 					return 'Grasshopper';
 				default:
 					return 'Ant';
@@ -5212,7 +5224,7 @@ var $author$project$Main$encodePieceKind = function (kind) {
 		}());
 };
 var $author$project$Main$playerLabel = function (player) {
-	if (!player) {
+	if (player.$ === 'White') {
 		return 'White';
 	} else {
 		return 'Black';
@@ -5232,7 +5244,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 					var v = _v0.b;
 					return A3(_Json_addField, k, v, obj);
 				}),
-			_Json_emptyObject(0),
+			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
 var $author$project$Main$encodePiece = function (piece) {
@@ -5241,10 +5253,10 @@ var $author$project$Main$encodePiece = function (piece) {
 			[
 				_Utils_Tuple2(
 				'kind',
-				$author$project$Main$encodePieceKind(piece.O)),
+				$author$project$Main$encodePieceKind(piece.kind)),
 				_Utils_Tuple2(
 				'owner',
-				$author$project$Main$encodePlayer(piece.R))
+				$author$project$Main$encodePlayer(piece.owner))
 			]));
 };
 var $elm$json$Json$Encode$int = _Json_wrap;
@@ -5254,10 +5266,10 @@ var $author$project$Main$encodePosition = function (pos) {
 			[
 				_Utils_Tuple2(
 				'q',
-				$elm$json$Json$Encode$int(pos.K)),
+				$elm$json$Json$Encode$int(pos.q)),
 				_Utils_Tuple2(
 				'r',
-				$elm$json$Json$Encode$int(pos.L))
+				$elm$json$Json$Encode$int(pos.r))
 			]));
 };
 var $elm$json$Json$Encode$list = F2(
@@ -5266,7 +5278,7 @@ var $elm$json$Json$Encode$list = F2(
 			A3(
 				$elm$core$List$foldl,
 				_Json_addEntry(func),
-				_Json_emptyArray(0),
+				_Json_emptyArray(_Utils_Tuple0),
 				entries));
 	});
 var $author$project$Main$encodeBoard = function (board) {
@@ -5289,11 +5301,11 @@ var $author$project$Main$encodeBoard = function (board) {
 									A2($elm$json$Json$Encode$list, $author$project$Main$encodePiece, pieces)
 								]));
 					},
-					board.V))
+					board.stacks))
 			]));
 };
 var $author$project$Main$encodeGameResult = function (result) {
-	if (!result.$) {
+	if (result.$ === 'Win') {
 		var player = result.a;
 		return $elm$json$Json$Encode$object(
 			_List_fromArray(
@@ -5339,7 +5351,7 @@ var $author$project$Main$encodeUnplaced = function (unplaced) {
 };
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
-		if (!maybe.$) {
+		if (maybe.$ === 'Just') {
 			var value = maybe.a;
 			return $elm$core$Maybe$Just(
 				f(value));
@@ -5350,7 +5362,7 @@ var $elm$core$Maybe$map = F2(
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
-		if (!maybe.$) {
+		if (maybe.$ === 'Just') {
 			var value = maybe.a;
 			return value;
 		} else {
@@ -5363,30 +5375,75 @@ var $author$project$Main$encodeGameState = function (state) {
 			[
 				_Utils_Tuple2(
 				'board',
-				$author$project$Main$encodeBoard(state.N)),
+				$author$project$Main$encodeBoard(state.board)),
 				_Utils_Tuple2(
 				'turn',
-				$author$project$Main$encodePlayer(state.M)),
+				$author$project$Main$encodePlayer(state.turn)),
 				_Utils_Tuple2(
 				'turn_number',
-				$elm$json$Json$Encode$int(state.Y)),
+				$elm$json$Json$Encode$int(state.turnNumber)),
 				_Utils_Tuple2(
 				'unplaced',
-				$author$project$Main$encodeUnplaced(state.Z)),
+				$author$project$Main$encodeUnplaced(state.unplaced)),
 				_Utils_Tuple2(
 				'result',
 				A2(
 					$elm$core$Maybe$withDefault,
 					$elm$json$Json$Encode$null,
-					A2($elm$core$Maybe$map, $author$project$Main$encodeGameResult, state.T)))
+					A2($elm$core$Maybe$map, $author$project$Main$encodeGameResult, state.result)))
 			]));
 };
+var $elm$core$Debug$log = _Debug_log;
+var $author$project$Main$requestAiMove = _Platform_outgoingPort(
+	'requestAiMove',
+	function ($) {
+		var a = $.a;
+		var b = $.b;
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					$elm$core$Basics$identity(a),
+					$elm$json$Json$Encode$int(b)
+				]));
+	});
+var $author$project$Main$best_ai_move = F2(
+	function (state, model) {
+		var _v0 = A2(
+			$elm$core$Debug$log,
+			'best_ai_move called',
+			_Utils_Tuple2(model.gameMode, state.turn));
+		var _v1 = model.gameMode;
+		if (_v1.$ === 'VsCpu') {
+			var cpu = _v1.a;
+			if (_Utils_eq(state.turn, cpu)) {
+				var _v2 = A2(
+					$elm$core$Debug$log,
+					'triggered AI move',
+					_Utils_Tuple2(state.turn, cpu));
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{isThinking: true}),
+					$author$project$Main$requestAiMove(
+						_Utils_Tuple2(
+							$author$project$Main$encodeGameState(state),
+							$author$project$Main$aiBudgetMs)));
+			} else {
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			}
+		} else {
+			return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+		}
+	});
+var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$Main$GameState = F5(
 	function (board, turn, turnNumber, unplaced, result) {
-		return {N: board, T: result, M: turn, Y: turnNumber, Z: unplaced};
+		return {board: board, result: result, turn: turn, turnNumber: turnNumber, unplaced: unplaced};
 	});
 var $author$project$Main$Board = function (stacks) {
-	return {V: stacks};
+	return {stacks: stacks};
 };
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$index = _Json_decodeIndex;
@@ -5397,13 +5454,13 @@ var $elm$core$Tuple$pair = F2(
 	});
 var $author$project$Main$Piece = F2(
 	function (kind, owner) {
-		return {O: kind, R: owner};
+		return {kind: kind, owner: owner};
 	});
-var $author$project$Main$Ant = 4;
-var $author$project$Main$Bee = 0;
-var $author$project$Main$Beetle = 2;
-var $author$project$Main$Grasshopper = 3;
-var $author$project$Main$Spider = 1;
+var $author$project$Main$Ant = {$: 'Ant'};
+var $author$project$Main$Bee = {$: 'Bee'};
+var $author$project$Main$Beetle = {$: 'Beetle'};
+var $author$project$Main$Grasshopper = {$: 'Grasshopper'};
+var $author$project$Main$Spider = {$: 'Spider'};
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$fail = _Json_fail;
 var $elm$json$Json$Decode$string = _Json_decodeString;
@@ -5412,30 +5469,30 @@ var $author$project$Main$pieceKindDecoder = A2(
 	function (str) {
 		switch (str) {
 			case 'Bee':
-				return $elm$json$Json$Decode$succeed(0);
+				return $elm$json$Json$Decode$succeed($author$project$Main$Bee);
 			case 'Spider':
-				return $elm$json$Json$Decode$succeed(1);
+				return $elm$json$Json$Decode$succeed($author$project$Main$Spider);
 			case 'Beetle':
-				return $elm$json$Json$Decode$succeed(2);
+				return $elm$json$Json$Decode$succeed($author$project$Main$Beetle);
 			case 'Grasshopper':
-				return $elm$json$Json$Decode$succeed(3);
+				return $elm$json$Json$Decode$succeed($author$project$Main$Grasshopper);
 			case 'Ant':
-				return $elm$json$Json$Decode$succeed(4);
+				return $elm$json$Json$Decode$succeed($author$project$Main$Ant);
 			default:
 				return $elm$json$Json$Decode$fail('Unknown piece kind: ' + str);
 		}
 	},
 	$elm$json$Json$Decode$string);
-var $author$project$Main$Black = 1;
-var $author$project$Main$White = 0;
+var $author$project$Main$Black = {$: 'Black'};
+var $author$project$Main$White = {$: 'White'};
 var $author$project$Main$playerDecoder = A2(
 	$elm$json$Json$Decode$andThen,
 	function (str) {
 		switch (str) {
 			case 'White':
-				return $elm$json$Json$Decode$succeed(0);
+				return $elm$json$Json$Decode$succeed($author$project$Main$White);
 			case 'Black':
-				return $elm$json$Json$Decode$succeed(1);
+				return $elm$json$Json$Decode$succeed($author$project$Main$Black);
 			default:
 				return $elm$json$Json$Decode$fail('Unknown player: ' + str);
 		}
@@ -5448,7 +5505,7 @@ var $author$project$Main$pieceDecoder = A3(
 	A2($elm$json$Json$Decode$field, 'owner', $author$project$Main$playerDecoder));
 var $author$project$Main$Position = F2(
 	function (q, r) {
-		return {K: q, L: r};
+		return {q: q, r: r};
 	});
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $author$project$Main$positionDecoder = A3(
@@ -5471,9 +5528,9 @@ var $author$project$Main$boardDecoder = A2(
 					$elm$json$Json$Decode$index,
 					1,
 					$elm$json$Json$Decode$list($author$project$Main$pieceDecoder))))));
-var $author$project$Main$Draw = {$: 1};
+var $author$project$Main$Draw = {$: 'Draw'};
 var $author$project$Main$Win = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Win', a: a};
 };
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $author$project$Main$gameResultDecoder = $elm$json$Json$Decode$oneOf(
@@ -5526,10 +5583,10 @@ var $author$project$Main$gameStateDecoder = A6(
 		$elm$json$Json$Decode$maybe($author$project$Main$gameResultDecoder)));
 var $author$project$Main$MovePiece = F2(
 	function (a, b) {
-		return {$: 1, a: a, b: b};
+		return {$: 'MovePiece', a: a, b: b};
 	});
 var $author$project$Main$encodeMove = function (move) {
-	if (!move.$) {
+	if (move.$ === 'Place') {
 		var kind = move.a;
 		var pos = move.b;
 		return $elm$json$Json$Encode$object(
@@ -5589,8 +5646,8 @@ var $author$project$Main$handlePieceSelection = F3(
 			_Utils_update(
 				model,
 				{
-					s: _List_Nil,
-					o: $elm$core$Maybe$Just(pos)
+					legalMoveTargets: _List_Nil,
+					selectedHex: $elm$core$Maybe$Just(pos)
 				}),
 			$author$project$Main$requestMovesForPiece(
 				_Utils_Tuple2(
@@ -5643,7 +5700,7 @@ var $author$project$Main$requestApplyMove = _Platform_outgoingPort(
 	});
 var $author$project$Main$handleMove = F4(
 	function (state, fromPos, pos, model) {
-		return A2($elm$core$List$member, pos, model.s) ? _Utils_Tuple2(
+		return A2($elm$core$List$member, pos, model.legalMoveTargets) ? _Utils_Tuple2(
 			model,
 			$author$project$Main$requestApplyMove(
 				_Utils_Tuple2(
@@ -5653,11 +5710,11 @@ var $author$project$Main$handleMove = F4(
 	});
 var $author$project$Main$Place = F2(
 	function (a, b) {
-		return {$: 0, a: a, b: b};
+		return {$: 'Place', a: a, b: b};
 	});
 var $author$project$Main$handlePlacement = F4(
 	function (state, kind, pos, model) {
-		return A2($elm$core$List$member, pos, model.t) ? _Utils_Tuple2(
+		return A2($elm$core$List$member, pos, model.legalPlacements) ? _Utils_Tuple2(
 			model,
 			$author$project$Main$requestApplyMove(
 				_Utils_Tuple2(
@@ -5667,12 +5724,12 @@ var $author$project$Main$handlePlacement = F4(
 	});
 var $author$project$Main$handleHexClick = F3(
 	function (state, pos, model) {
-		var _v0 = _Utils_Tuple2(model.m, model.o);
-		if (!_v0.a.$) {
+		var _v0 = _Utils_Tuple2(model.selectedHandPiece, model.selectedHex);
+		if (_v0.a.$ === 'Just') {
 			var kind = _v0.a.a;
 			return A4($author$project$Main$handlePlacement, state, kind, pos, model);
 		} else {
-			if (!_v0.b.$) {
+			if (_v0.b.$ === 'Just') {
 				var _v1 = _v0.a;
 				var fromPos = _v0.b.a;
 				return A4($author$project$Main$handleMove, state, fromPos, pos, model);
@@ -5704,76 +5761,75 @@ var $author$project$Main$requestNewGame = _Platform_outgoingPort(
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 0:
+			case 'ClickedHex':
 				var pos = msg.a;
-				var _v1 = model.i;
-				if (_v1.$ === 1) {
+				var _v1 = model.gameState;
+				if (_v1.$ === 'Nothing') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
 					var state = _v1.a;
 					return A3($author$project$Main$handleHexClick, state, pos, model);
 				}
-			case 1:
+			case 'ClickedHandPiece':
 				var kind = msg.a;
-				var _v2 = model.i;
-				if (!_v2.$) {
+				var _v2 = model.gameState;
+				if (_v2.$ === 'Just') {
 					var state = _v2.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								m: $elm$core$Maybe$Just(kind),
-								o: $elm$core$Maybe$Nothing
+								selectedHandPiece: $elm$core$Maybe$Just(kind),
+								selectedHex: $elm$core$Maybe$Nothing
 							}),
 						$author$project$Main$requestLegalPlacements(
 							$author$project$Main$encodeGameState(state)));
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
-			case 2:
+			case 'ClickedNewGame':
 				return _Utils_Tuple2(
 					model,
-					$author$project$Main$requestNewGame(0));
-			case 3:
+					$author$project$Main$requestNewGame(_Utils_Tuple0));
+			case 'GotInitialState':
 				var value = msg.a;
 				var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$gameStateDecoder, value);
-				if (!_v3.$) {
+				if (_v3.$ === 'Ok') {
 					var state = _v3.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								r: $elm$core$Maybe$Nothing,
-								i: $elm$core$Maybe$Just(state),
-								s: _List_Nil,
-								t: _List_Nil,
-								m: $elm$core$Maybe$Nothing,
-								o: $elm$core$Maybe$Nothing
-							}),
-						$elm$core$Platform$Cmd$none);
+					var newModel = _Utils_update(
+						model,
+						{
+							decodeErrorMsg: $elm$core$Maybe$Nothing,
+							gameState: $elm$core$Maybe$Just(state),
+							legalMoveTargets: _List_Nil,
+							legalPlacements: _List_Nil,
+							selectedHandPiece: $elm$core$Maybe$Nothing,
+							selectedHex: $elm$core$Maybe$Nothing
+						});
+					return A2($author$project$Main$best_ai_move, state, newModel);
 				} else {
 					var error = _v3.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								r: $elm$core$Maybe$Just(
+								decodeErrorMsg: $elm$core$Maybe$Just(
 									$elm$json$Json$Decode$errorToString(error))
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 4:
+			case 'GotLegalPlacements':
 				var value = msg.a;
 				var _v4 = A2(
 					$elm$json$Json$Decode$decodeValue,
 					$elm$json$Json$Decode$list($author$project$Main$positionDecoder),
 					value);
-				if (!_v4.$) {
+				if (_v4.$ === 'Ok') {
 					var positions = _v4.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{t: positions}),
+							{legalPlacements: positions}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var error = _v4.a;
@@ -5781,50 +5837,49 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								r: $elm$core$Maybe$Just(
+								decodeErrorMsg: $elm$core$Maybe$Just(
 									$elm$json$Json$Decode$errorToString(error))
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 5:
+			case 'GotNewState':
 				var value = msg.a;
 				var _v5 = A2($elm$json$Json$Decode$decodeValue, $author$project$Main$gameStateDecoder, value);
-				if (!_v5.$) {
+				if (_v5.$ === 'Ok') {
 					var state = _v5.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								i: $elm$core$Maybe$Just(state),
-								s: _List_Nil,
-								t: _List_Nil,
-								m: $elm$core$Maybe$Nothing,
-								o: $elm$core$Maybe$Nothing
-							}),
-						$elm$core$Platform$Cmd$none);
+					var newModel = _Utils_update(
+						model,
+						{
+							gameState: $elm$core$Maybe$Just(state),
+							legalMoveTargets: _List_Nil,
+							legalPlacements: _List_Nil,
+							selectedHandPiece: $elm$core$Maybe$Nothing,
+							selectedHex: $elm$core$Maybe$Nothing
+						});
+					return A2($author$project$Main$best_ai_move, state, newModel);
 				} else {
 					var error = _v5.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								r: $elm$core$Maybe$Just(
+								decodeErrorMsg: $elm$core$Maybe$Just(
 									$elm$json$Json$Decode$errorToString(error))
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 6:
+			case 'GotMovesForPiece':
 				var value = msg.a;
 				var _v6 = A2(
 					$elm$json$Json$Decode$decodeValue,
 					$elm$json$Json$Decode$list($author$project$Main$moveDecoder),
 					value);
-				if (!_v6.$) {
+				if (_v6.$ === 'Ok') {
 					var positions = _v6.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{s: positions}),
+							{legalMoveTargets: positions}),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var error = _v6.a;
@@ -5832,17 +5887,44 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								r: $elm$core$Maybe$Just(
+								decodeErrorMsg: $elm$core$Maybe$Just(
 									$elm$json$Json$Decode$errorToString(error))
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'ClickedDeselect':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{t: _List_Nil, m: $elm$core$Maybe$Nothing}),
+						{legalPlacements: _List_Nil, selectedHandPiece: $elm$core$Maybe$Nothing}),
 					$elm$core$Platform$Cmd$none);
+			case 'ClickedSelectMode':
+				var mode = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{gameMode: mode}),
+					$author$project$Main$requestNewGame(_Utils_Tuple0));
+			default:
+				var moveValue = msg.a;
+				var _v7 = model.gameState;
+				if (_v7.$ === 'Just') {
+					var state = _v7.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{isThinking: false}),
+						$author$project$Main$requestApplyMove(
+							_Utils_Tuple2(
+								$author$project$Main$encodeGameState(state),
+								moveValue)));
+				} else {
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{isThinking: false}),
+						$elm$core$Platform$Cmd$none);
+				}
 		}
 	});
 var $elm$core$Basics$negate = function (n) {
@@ -5881,7 +5963,7 @@ var $elm$core$List$filter = F2(
 var $author$project$Main$boardHexes = A2(
 	$elm$core$List$filter,
 	function (pos) {
-		return $elm$core$Basics$abs(pos.K + pos.L) <= 4;
+		return $elm$core$Basics$abs(pos.q + pos.r) <= 4;
 	},
 	A2(
 		$elm$core$List$concatMap,
@@ -5897,11 +5979,11 @@ var $author$project$Main$boardHexes = A2(
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$svg$Svg$Attributes$preserveAspectRatio = _VirtualDom_attribute('preserveAspectRatio');
 var $author$project$Main$ClickedHex = function (a) {
-	return {$: 0, a: a};
+	return {$: 'ClickedHex', a: a};
 };
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
-		if (!maybeValue.$) {
+		if (maybeValue.$ === 'Just') {
 			var value = maybeValue.a;
 			return callback(value);
 		} else {
@@ -5976,10 +6058,10 @@ var $author$project$Main$lookupStack = F2(
 						var p = _v0.a;
 						return _Utils_eq(p, pos);
 					},
-					board.V)));
+					board.stacks)));
 	});
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 0, a: a};
+	return {$: 'Normal', a: a};
 };
 var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var $elm$html$Html$Events$on = F2(
@@ -5996,21 +6078,21 @@ var $elm$svg$Svg$Events$onClick = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $author$project$Main$pieceColor = function (player) {
-	if (!player) {
+	if (player.$ === 'White') {
 		return '#f5f0e0';
 	} else {
 		return '#515151';
 	}
 };
 var $author$project$Main$pieceGlyph = function (kind) {
-	switch (kind) {
-		case 0:
+	switch (kind.$) {
+		case 'Bee':
 			return '🐝';
-		case 1:
+		case 'Spider':
 			return '🕷';
-		case 2:
+		case 'Beetle':
 			return '🪲';
-		case 3:
+		case 'Grasshopper':
 			return '🦗';
 		default:
 			return '🐜';
@@ -6037,32 +6119,32 @@ var $author$project$Main$renderHex = F2(
 				A2(
 					$elm$core$Maybe$andThen,
 					function (state) {
-						return A2($author$project$Main$lookupStack, state.N, pos);
+						return A2($author$project$Main$lookupStack, state.board, pos);
 					},
-					model.i)));
+					model.gameState)));
 		var isSelected = _Utils_eq(
-			model.o,
+			model.selectedHex,
 			$elm$core$Maybe$Just(pos));
-		var isLegalPlacement = A2($elm$core$List$member, pos, model.t);
-		var isLegalMoveTarget = A2($elm$core$List$member, pos, model.s);
+		var isLegalPlacement = A2($elm$core$List$member, pos, model.legalPlacements);
+		var isLegalMoveTarget = A2($elm$core$List$member, pos, model.legalMoveTargets);
 		var isClickable = function () {
-			var _v4 = _Utils_Tuple2(model.m, model.o);
-			if (!_v4.a.$) {
+			var _v4 = _Utils_Tuple2(model.selectedHandPiece, model.selectedHex);
+			if (_v4.a.$ === 'Just') {
 				return isLegalPlacement;
 			} else {
 				return true;
 			}
 		}();
 		var hexFill = function () {
-			if (!pieceHere.$) {
+			if (pieceHere.$ === 'Just') {
 				var piece = pieceHere.a;
-				return $author$project$Main$pieceColor(piece.R);
+				return $author$project$Main$pieceColor(piece.owner);
 			} else {
 				return isSelected ? '#f0c283' : (isLegalPlacement ? '#d4f0d9' : 'white');
 			}
 		}();
 		var cursorStyle = isClickable ? $elm$svg$Svg$Attributes$style('cursor: pointer;') : $elm$svg$Svg$Attributes$style('cursor: default;');
-		var _v0 = A3($author$project$Main$axialToPixel, pos.K, pos.L, 40);
+		var _v0 = A3($author$project$Main$axialToPixel, pos.q, pos.r, 40);
 		var x = _v0.a;
 		var y = _v0.b;
 		var _v1 = isSelected ? _Utils_Tuple2('#f0c283', '3') : (isLegalMoveTarget ? _Utils_Tuple2('#4caf50', '3') : (isLegalPlacement ? _Utils_Tuple2('#8fe0a0', '2') : _Utils_Tuple2('#ddd', '1')));
@@ -6095,7 +6177,7 @@ var $author$project$Main$renderHex = F2(
 				$elm$core$List$cons,
 				A2($elm$svg$Svg$polygon, attrs, _List_Nil),
 				function () {
-					if (!pieceHere.$) {
+					if (pieceHere.$ === 'Just') {
 						var piece = pieceHere.a;
 						return _List_fromArray(
 							[
@@ -6110,7 +6192,7 @@ var $author$project$Main$renderHex = F2(
 								_List_fromArray(
 									[
 										$elm$svg$Svg$text(
-										$author$project$Main$pieceGlyph(piece.O))
+										$author$project$Main$pieceGlyph(piece.kind))
 									]))
 							]);
 					} else {
@@ -6144,8 +6226,8 @@ var $author$project$Main$boardView = function (model) {
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$errorBanner = function (model) {
-	var _v0 = model.r;
-	if (!_v0.$) {
+	var _v0 = model.decodeErrorMsg;
+	if (_v0.$ === 'Just') {
 		var msg = _v0.a;
 		return A2(
 			$elm$html$Html$div,
@@ -6169,7 +6251,7 @@ var $author$project$Main$errorBanner = function (model) {
 		return $elm$html$Html$text('');
 	}
 };
-var $author$project$Main$ClickedNewGame = {$: 2};
+var $author$project$Main$ClickedNewGame = {$: 'ClickedNewGame'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Events$onClick = function (msg) {
 	return A2(
@@ -6231,13 +6313,13 @@ var $author$project$Main$gameOverBanner = function (model) {
 	var _v0 = A2(
 		$elm$core$Maybe$andThen,
 		function ($) {
-			return $.T;
+			return $.result;
 		},
-		model.i);
-	if (_v0.$ === 1) {
+		model.gameState);
+	if (_v0.$ === 'Nothing') {
 		return $elm$html$Html$text('');
 	} else {
-		if (!_v0.a.$) {
+		if (_v0.a.$ === 'Win') {
 			var player = _v0.a.a;
 			return $author$project$Main$resultOverlay(
 				$author$project$Main$playerLabel(player) + ' wins!');
@@ -6247,7 +6329,7 @@ var $author$project$Main$gameOverBanner = function (model) {
 		}
 	}
 };
-var $author$project$Main$ClickedDeselect = {$: 7};
+var $author$project$Main$ClickedDeselect = {$: 'ClickedDeselect'};
 var $author$project$Main$deselectButton = A2(
 	$elm$html$Html$button,
 	_List_fromArray(
@@ -6268,7 +6350,7 @@ var $author$project$Main$deselectButton = A2(
 			$elm$html$Html$text('×')
 		]));
 var $author$project$Main$ClickedHandPiece = function (a) {
-	return {$: 1, a: a};
+	return {$: 'ClickedHandPiece', a: a};
 };
 var $author$project$Main$countBadge = function (count) {
 	return (count > 1) ? A2(
@@ -6299,7 +6381,7 @@ var $author$project$Main$handSlot = F2(
 		var kind = _v0.a;
 		var count = _v0.b;
 		var isSelected = _Utils_eq(
-			model.m,
+			model.selectedHandPiece,
 			$elm$core$Maybe$Just(kind));
 		return A2(
 			$elm$html$Html$div,
@@ -6331,8 +6413,8 @@ var $author$project$Main$handSlot = F2(
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Main$handToolbar = function (model) {
-	var _v0 = model.i;
-	if (_v0.$ === 1) {
+	var _v0 = model.gameState;
+	if (_v0.$ === 'Nothing') {
 		return $elm$html$Html$text('');
 	} else {
 		var state = _v0.a;
@@ -6347,9 +6429,9 @@ var $author$project$Main$handToolbar = function (model) {
 						$elm$core$List$filter,
 						function (_v1) {
 							var player = _v1.a;
-							return _Utils_eq(player, state.M);
+							return _Utils_eq(player, state.turn);
 						},
-						state.Z))));
+						state.unplaced))));
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -6366,7 +6448,7 @@ var $author$project$Main$handToolbar = function (model) {
 					A2($elm$html$Html$Attributes$style, 'gap', '12px')
 				]),
 			_Utils_ap(
-				(!_Utils_eq(model.m, $elm$core$Maybe$Nothing)) ? _List_fromArray(
+				(!_Utils_eq(model.selectedHandPiece, $elm$core$Maybe$Nothing)) ? _List_fromArray(
 					[$author$project$Main$deselectButton]) : _List_Nil,
 				A2(
 					$elm$core$List$map,
@@ -6375,8 +6457,8 @@ var $author$project$Main$handToolbar = function (model) {
 	}
 };
 var $author$project$Main$topLeftControls = function (model) {
-	var _v0 = model.i;
-	if (_v0.$ === 1) {
+	var _v0 = model.gameState;
+	if (_v0.$ === 'Nothing') {
 		return $elm$html$Html$text('');
 	} else {
 		return A2(
@@ -6445,8 +6527,8 @@ var $author$project$Main$infoColumn = F2(
 				]));
 	});
 var $author$project$Main$topRightInfo = function (model) {
-	var _v0 = model.i;
-	if (_v0.$ === 1) {
+	var _v0 = model.gameState;
+	if (_v0.$ === 'Nothing') {
 		return $elm$html$Html$text('');
 	} else {
 		var state = _v0.a;
@@ -6469,17 +6551,23 @@ var $author$project$Main$topRightInfo = function (model) {
 					A2(
 					$author$project$Main$infoColumn,
 					'Player',
-					$author$project$Main$playerLabel(state.M)),
+					$author$project$Main$playerLabel(state.turn)),
 					A2(
 					$author$project$Main$infoColumn,
 					'Turn',
-					$elm$core$String$fromInt(state.Y))
+					$elm$core$String$fromInt(state.turnNumber))
 				]));
 	}
 };
+var $author$project$Main$ClickedSelectMode = function (a) {
+	return {$: 'ClickedSelectMode', a: a};
+};
+var $author$project$Main$VsCpu = function (a) {
+	return {$: 'VsCpu', a: a};
+};
 var $author$project$Main$welcomeCard = function (model) {
-	var _v0 = model.i;
-	if (!_v0.$) {
+	var _v0 = model.gameState;
+	if (_v0.$ === 'Just') {
 		return $elm$html$Html$text('');
 	} else {
 		return A2(
@@ -6526,21 +6614,51 @@ var $author$project$Main$welcomeCard = function (model) {
 							$elm$html$Html$text('A hive game engine written in Rust, rendered here in Elm.')
 						])),
 					A2(
-					$elm$html$Html$button,
+					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Events$onClick($author$project$Main$ClickedNewGame),
-							A2($elm$html$Html$Attributes$style, 'padding', '12px 28px'),
-							A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
-							A2($elm$html$Html$Attributes$style, 'border', '1px solid #ddd'),
-							A2($elm$html$Html$Attributes$style, 'background', '#8fe0a0'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '16px'),
-							A2($elm$html$Html$Attributes$style, 'font-weight', 'bold'),
-							A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+							A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+							A2($elm$html$Html$Attributes$style, 'gap', '12px')
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text('Start Game')
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick(
+									$author$project$Main$ClickedSelectMode($author$project$Main$LocalPvp)),
+									A2($elm$html$Html$Attributes$style, 'padding', '12px 24px'),
+									A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
+									A2($elm$html$Html$Attributes$style, 'border', '1px solid #ddd'),
+									A2($elm$html$Html$Attributes$style, 'background', '#8fe0a0'),
+									A2($elm$html$Html$Attributes$style, 'font-size', '16px'),
+									A2($elm$html$Html$Attributes$style, 'font-weight', 'bold'),
+									A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Local PvP')
+								])),
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick(
+									$author$project$Main$ClickedSelectMode(
+										$author$project$Main$VsCpu($author$project$Main$Black))),
+									A2($elm$html$Html$Attributes$style, 'padding', '12px 24px'),
+									A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
+									A2($elm$html$Html$Attributes$style, 'border', '1px solid #ddd'),
+									A2($elm$html$Html$Attributes$style, 'background', '#8fc0e0'),
+									A2($elm$html$Html$Attributes$style, 'font-size', '16px'),
+									A2($elm$html$Html$Attributes$style, 'font-weight', 'bold'),
+									A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Versus CPU')
+								]))
 						]))
 				]));
 	}
@@ -6567,12 +6685,12 @@ var $author$project$Main$view = function (model) {
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{
-		aJ: function (_v0) {
+		init: function (_v0) {
 			return _Utils_Tuple2($author$project$Main$init, $elm$core$Platform$Cmd$none);
 		},
-		aP: $author$project$Main$subscriptions,
-		aR: $author$project$Main$update,
-		aS: $author$project$Main$view
+		subscriptions: $author$project$Main$subscriptions,
+		update: $author$project$Main$update,
+		view: $author$project$Main$view
 	});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(0))(0)}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));

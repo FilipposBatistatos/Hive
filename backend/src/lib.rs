@@ -16,6 +16,7 @@ use crate::types::*;
 use crate::game::*;
 use crate::board::*;
 use crate::rules::*;
+use crate::engine::*;
 
 #[wasm_bindgen]
 pub fn init_panic_hook() {
@@ -83,6 +84,14 @@ pub fn apply_move_json(state_js: JsValue, mv_js: JsValue) -> JsValue {
     let mv: Move = serde_wasm_bindgen::from_value(mv_js).unwrap();
     let new_state = apply_move(&state, mv);
     to_js(&GameStateWire::from(&new_state))
+}
+
+#[wasm_bindgen]
+pub fn get_ai_move_json(state_js: JsValue, budget_ms: u32) -> JsValue {
+    let state: GameState = serde_wasm_bindgen::from_value(state_js).unwrap();
+    let budget = std::time::Duration::from_millis(budget_ms as u64);
+    let mv = best_move_timed(&state, budget);
+    to_js(&mv)
 }
 
 fn initial_game_state() -> GameState {

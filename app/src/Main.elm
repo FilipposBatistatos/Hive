@@ -19,6 +19,8 @@ port requestApplyMove : ( Decode.Value, Decode.Value ) -> Cmd msg
 port receiveNewState : ( Decode.Value -> msg ) -> Sub msg
 port requestMovesForPiece : ( Decode.Value, Decode.Value ) -> Cmd msg
 port receiveMovesForPiece : ( Decode.Value -> msg ) -> Sub msg
+port requestAiMove : ( Decode.Value, Int ) -> Cmd msg
+port receiveAiMove : ( Decode.Value -> msg ) -> Sub msg
 
 -- TYPES
 
@@ -61,6 +63,7 @@ type Move
     = Place PieceKind Position
     | MovePiece Position Position
 
+type GameMode = LocalPvp | VsCpu Player
 
 -- MODEL
 
@@ -71,6 +74,8 @@ type alias Model =
     , decodeErrorMsg : Maybe String
     , legalPlacements : List Position -- Where the currently selected piece from hand can be placed
     , legalMoveTargets : List Position -- Where the currently selected piece can move to
+    , gameMode : GameMode
+    , isThinking : Bool
     }
 
 
@@ -82,6 +87,8 @@ init =
     , decodeErrorMsg = Nothing
     , legalPlacements = []
     , legalMoveTargets = []
+    , gameMode = LocalPvp
+    , isThinking = False
     }
 
 
@@ -91,10 +98,12 @@ type Msg
     = ClickedHex Position
     | ClickedHandPiece PieceKind
     | ClickedNewGame
+    | ClickedSelectMode GameMode
     | GotInitialState Decode.Value
     | GotLegalPlacements Decode.Value
     | GotNewState Decode.Value
     | GotMovesForPiece Decode.Value
+    | GotAiMove Decode.Value
     | ClickedDeselect
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -123,16 +132,18 @@ update msg model =
         GotInitialState value ->
             case Decode.decodeValue gameStateDecoder value of
                 Ok state ->
-                    ( { model
-                        | gameState = Just state
-                        , decodeErrorMsg = Nothing
-                        , selectedHex = Nothing
-                        , selectedHandPiece = Nothing
-                        , legalPlacements = []
-                        , legalMoveTargets = []
-                    }
-                    , Cmd.none
-                    )
+                    let
+                        newModel = 
+                            { model
+                                | gameState = Just state
+                                , decodeErrorMsg = Nothing
+                                , selectedHex = Nothing
+                                , selectedHandPiece = Nothing
+                                , legalPlacements = []
+                                , legalMoveTargets = []
+                            }
+                    in
+                    best_ai_move state newModel
 
                 Err error ->
                     ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
@@ -148,15 +159,18 @@ update msg model =
         GotNewState value -> 
             case Decode.decodeValue gameStateDecoder value of
                 Ok state ->
-                    ( { model
-                        | gameState = Just state
-                        , selectedHex = Nothing
-                        , selectedHandPiece = Nothing
-                        , legalPlacements = []
-                        , legalMoveTargets = []
-                        }
-                    , Cmd.none 
-                    )
+                    let
+                        newModel = 
+                            { model
+                                | gameState = Just state
+                                , selectedHex = Nothing
+                                , selectedHandPiece = Nothing
+                                , legalPlacements = []
+                                , legalMoveTargets = []
+                            }
+                    in
+                    best_ai_move state newModel
+
                 Err error -> 
                     ( { model | decodeErrorMsg = Just (Decode.errorToString error) }, Cmd.none )
 
@@ -170,6 +184,37 @@ update msg model =
 
         ClickedDeselect ->
             ( { model | selectedHandPiece = Nothing, legalPlacements = [] }, Cmd.none )
+
+        ClickedSelectMode mode -> 
+            ( { model | gameMode = mode}, requestNewGame() )
+
+        GotAiMove moveValue -> 
+            case model.gameState of 
+                Just state ->
+                    ( { model | isThinking = False } 
+                    , requestApplyMove ( encodeGameState state, moveValue ) 
+                    )
+
+                Nothing -> 
+                    ( { model | isThinking = False }, Cmd.none )
+
+-- CPU 
+aiBudgetMs : Int
+aiBudgetMs = 2000
+
+best_ai_move : GameState -> Model -> (Model, Cmd Msg)
+best_ai_move state model = 
+    case model.gameMode of 
+        VsCpu cpu -> 
+            if state.turn == cpu then
+                ( { model | isThinking = True }
+                , requestAiMove ( encodeGameState state, aiBudgetMs ) 
+                )
+            else 
+                ( model, Cmd.none ) 
+
+        LocalPvp -> 
+            ( model, Cmd.none )
 
 handleHexClick : GameState -> Position -> Model -> ( Model, Cmd Msg )
 handleHexClick state pos model = 
@@ -208,6 +253,7 @@ subscriptions _ =
         , receiveLegalPlacements GotLegalPlacements
         , receiveNewState GotNewState
         , receiveMovesForPiece GotMovesForPiece
+        , receiveAiMove GotAiMove
         ]
 
 -- VIEW
@@ -270,17 +316,30 @@ welcomeCard model =
                 ]
                 [ div [ style "font-size" "32px", style "font-weight" "bold" ] [ text "Hive" ]
                 , div [ style "color" "#666", style "max-width" "320px" ] [ text "A hive game engine written in Rust, rendered here in Elm." ]
-                , button
-                    [ Html.Events.onClick ClickedNewGame
-                    , style "padding" "12px 28px"
-                    , style "border-radius" "8px"
-                    , style "border" "1px solid #ddd"
-                    , style "background" "#8fe0a0"
-                    , style "font-size" "16px"
-                    , style "font-weight" "bold"
-                    , style "cursor" "pointer"
+                , div [ style "display" "flex", style "gap" "12px" ]
+                    [ button
+                        [ Html.Events.onClick (ClickedSelectMode LocalPvp)
+                        , style "padding" "12px 24px"
+                        , style "border-radius" "8px"
+                        , style "border" "1px solid #ddd"
+                        , style "background" "#8fe0a0"
+                        , style "font-size" "16px"
+                        , style "font-weight" "bold"
+                        , style "cursor" "pointer"
+                        ]
+                        [ text "Local PvP" ]
+                    , button
+                        [ Html.Events.onClick (ClickedSelectMode (VsCpu Black))
+                        , style "padding" "12px 24px"
+                        , style "border-radius" "8px"
+                        , style "border" "1px solid #ddd"
+                        , style "background" "#8fc0e0"
+                        , style "font-size" "16px"
+                        , style "font-weight" "bold"
+                        , style "cursor" "pointer"
+                        ]
+                        [ text "Versus CPU" ]
                     ]
-                    [ text "Start Game" ]
                 ]
 
 
