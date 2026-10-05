@@ -2,7 +2,7 @@ port module Main exposing (main)
 
 import Browser
 import Html exposing (Html, div, text, button)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (style, class)
 import Html.Events
 import Json.Decode as Decode
 import Svg exposing (Svg, svg, polygon, g)
@@ -108,6 +108,17 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    if model.isThinking then
+        case msg of 
+            ClickedHex _ -> ( model, Cmd.none )
+            ClickedHandPiece _ -> ( model, Cmd.none )
+            ClickedDeselect -> ( model, Cmd.none )
+            _ -> updateReal msg model
+    else 
+        updateReal msg model
+
+updateReal : Msg -> Model -> ( Model, Cmd Msg )
+updateReal msg model = 
     case msg of
         ClickedHex pos ->
             case model.gameState of
@@ -261,7 +272,8 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
     div [ style "position" "relative", style "width" "100vw", style "height" "100vh" ]
-        [ boardView model
+        [ Html.node "style" [] [ text thinkingDotsCss]
+        , boardView model
         , topLeftControls model
         , topRightInfo model
         , handToolbar model
@@ -270,6 +282,20 @@ view model =
         , welcomeCard model
         ]
 
+thinkingDotsCss : String
+thinkingDotsCss = 
+    """
+    @keyframes blinkDots {
+        0%, 20% { opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { opacity: 0.2; }
+    }
+    .thinking-dot {
+        animation: blinkDots 1.4s infinite;
+    }
+    .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+    """
 
 errorBanner : Model -> Html Msg
 errorBanner model =
@@ -380,11 +406,31 @@ topRightInfo model =
                 , style "border-radius" "12px"
                 , style "padding" "12px 24px"
                 , style "display" "flex"
-                , style "gap" "32px"
+                , style "gap" "8px"
                 ]
                 [ infoColumn "Player" (playerLabel state.turn)
                 , infoColumn "Turn" (String.fromInt state.turnNumber)
                 ]
+
+cpuHandPlaceholder : Html Msg
+cpuHandPlaceholder =
+    div
+        [ style "position" "fixed"
+        , style "bottom" "24px"
+        , style "left" "50%"
+        , style "transform" "translateX(-50%)"
+        , style "background" "white"
+        , style "border" "1px solid #ddd"
+        , style "border-radius" "12px"
+        , style "padding" "20px 32px"
+        , style "color" "#888"
+        , style "font-size" "16px"
+        ]
+        [ text "CPU is thinking"
+        , Html.span [ class "thinking-dot" ] [ text "." ]
+        , Html.span [ class "thinking-dot" ] [ text "." ]
+        , Html.span [ class "thinking-dot" ] [ text "." ]
+        ]
 
 
 infoColumn : String -> String -> Html Msg
@@ -556,33 +602,36 @@ handToolbar model =
             text ""
 
         Just state ->
-            let
-                myHand =
-                    state.unplaced
-                        |> List.filter (\( player, _ ) -> player == state.turn)
-                        |> List.head
-                        |> Maybe.map Tuple.second
-                        |> Maybe.withDefault []
-            in
-            div
-                [ style "position" "fixed"
-                , style "bottom" "24px"
-                , style "left" "50%"
-                , style "transform" "translateX(-50%)"
-                , style "background" "white"
-                , style "border" "1px solid #ddd"
-                , style "border-radius" "12px"
-                , style "padding" "12px"
-                , style "display" "flex"
-                , style "gap" "12px"
-                ]
-                ((if model.selectedHandPiece /= Nothing then
-                    [ deselectButton ]
-                    else
-                    []
+            if model.isThinking then
+                cpuHandPlaceholder
+            else
+                let
+                    myHand =
+                        state.unplaced
+                            |> List.filter (\( player, _ ) -> player == state.turn)
+                            |> List.head
+                            |> Maybe.map Tuple.second
+                            |> Maybe.withDefault []
+                in
+                div
+                    [ style "position" "fixed"
+                    , style "bottom" "24px"
+                    , style "left" "50%"
+                    , style "transform" "translateX(-50%)"
+                    , style "background" "white"
+                    , style "border" "1px solid #ddd"
+                    , style "border-radius" "12px"
+                    , style "padding" "12px"
+                    , style "display" "flex"
+                    , style "gap" "12px"
+                    ]
+                    ((if model.selectedHandPiece /= Nothing then
+                        [ deselectButton ]
+                      else
+                        []
+                     )
+                        ++ List.map (handSlot model) myHand
                     )
-                    ++ List.map (handSlot model) myHand
-                )
 
 handSlot : Model -> ( PieceKind, Int ) -> Html Msg
 handSlot model ( kind, count ) =

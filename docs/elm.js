@@ -5393,7 +5393,6 @@ var $author$project$Main$encodeGameState = function (state) {
 					A2($elm$core$Maybe$map, $author$project$Main$encodeGameResult, state.result)))
 			]));
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Main$requestAiMove = _Platform_outgoingPort(
 	'requestAiMove',
 	function ($) {
@@ -5410,29 +5409,17 @@ var $author$project$Main$requestAiMove = _Platform_outgoingPort(
 	});
 var $author$project$Main$best_ai_move = F2(
 	function (state, model) {
-		var _v0 = A2(
-			$elm$core$Debug$log,
-			'best_ai_move called',
-			_Utils_Tuple2(model.gameMode, state.turn));
-		var _v1 = model.gameMode;
-		if (_v1.$ === 'VsCpu') {
-			var cpu = _v1.a;
-			if (_Utils_eq(state.turn, cpu)) {
-				var _v2 = A2(
-					$elm$core$Debug$log,
-					'triggered AI move',
-					_Utils_Tuple2(state.turn, cpu));
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{isThinking: true}),
-					$author$project$Main$requestAiMove(
-						_Utils_Tuple2(
-							$author$project$Main$encodeGameState(state),
-							$author$project$Main$aiBudgetMs)));
-			} else {
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			}
+		var _v0 = model.gameMode;
+		if (_v0.$ === 'VsCpu') {
+			var cpu = _v0.a;
+			return _Utils_eq(state.turn, cpu) ? _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{isThinking: true}),
+				$author$project$Main$requestAiMove(
+					_Utils_Tuple2(
+						$author$project$Main$encodeGameState(state),
+						$author$project$Main$aiBudgetMs))) : _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		} else {
 			return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		}
@@ -5758,7 +5745,7 @@ var $author$project$Main$requestNewGame = _Platform_outgoingPort(
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
-var $author$project$Main$update = F2(
+var $author$project$Main$updateReal = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'ClickedHex':
@@ -5925,6 +5912,23 @@ var $author$project$Main$update = F2(
 							{isThinking: false}),
 						$elm$core$Platform$Cmd$none);
 				}
+		}
+	});
+var $author$project$Main$update = F2(
+	function (msg, model) {
+		if (model.isThinking) {
+			switch (msg.$) {
+				case 'ClickedHex':
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				case 'ClickedHandPiece':
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				case 'ClickedDeselect':
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				default:
+					return A2($author$project$Main$updateReal, msg, model);
+			}
+		} else {
+			return A2($author$project$Main$updateReal, msg, model);
 		}
 	});
 var $elm$core$Basics$negate = function (n) {
@@ -6329,6 +6333,64 @@ var $author$project$Main$gameOverBanner = function (model) {
 		}
 	}
 };
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $author$project$Main$cpuHandPlaceholder = A2(
+	$elm$html$Html$div,
+	_List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+			A2($elm$html$Html$Attributes$style, 'bottom', '24px'),
+			A2($elm$html$Html$Attributes$style, 'left', '50%'),
+			A2($elm$html$Html$Attributes$style, 'transform', 'translateX(-50%)'),
+			A2($elm$html$Html$Attributes$style, 'background', 'white'),
+			A2($elm$html$Html$Attributes$style, 'border', '1px solid #ddd'),
+			A2($elm$html$Html$Attributes$style, 'border-radius', '12px'),
+			A2($elm$html$Html$Attributes$style, 'padding', '20px 32px'),
+			A2($elm$html$Html$Attributes$style, 'color', '#888'),
+			A2($elm$html$Html$Attributes$style, 'font-size', '16px')
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('CPU is thinking'),
+			A2(
+			$elm$html$Html$span,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('thinking-dot')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('.')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('thinking-dot')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('.')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('thinking-dot')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('.')
+				]))
+		]));
 var $author$project$Main$ClickedDeselect = {$: 'ClickedDeselect'};
 var $author$project$Main$deselectButton = A2(
 	$elm$html$Html$button,
@@ -6418,44 +6480,54 @@ var $author$project$Main$handToolbar = function (model) {
 		return $elm$html$Html$text('');
 	} else {
 		var state = _v0.a;
-		var myHand = A2(
-			$elm$core$Maybe$withDefault,
-			_List_Nil,
-			A2(
-				$elm$core$Maybe$map,
-				$elm$core$Tuple$second,
-				$elm$core$List$head(
-					A2(
-						$elm$core$List$filter,
-						function (_v1) {
-							var player = _v1.a;
-							return _Utils_eq(player, state.turn);
-						},
-						state.unplaced))));
-		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
-					A2($elm$html$Html$Attributes$style, 'bottom', '24px'),
-					A2($elm$html$Html$Attributes$style, 'left', '50%'),
-					A2($elm$html$Html$Attributes$style, 'transform', 'translateX(-50%)'),
-					A2($elm$html$Html$Attributes$style, 'background', 'white'),
-					A2($elm$html$Html$Attributes$style, 'border', '1px solid #ddd'),
-					A2($elm$html$Html$Attributes$style, 'border-radius', '12px'),
-					A2($elm$html$Html$Attributes$style, 'padding', '12px'),
-					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-					A2($elm$html$Html$Attributes$style, 'gap', '12px')
-				]),
-			_Utils_ap(
-				(!_Utils_eq(model.selectedHandPiece, $elm$core$Maybe$Nothing)) ? _List_fromArray(
-					[$author$project$Main$deselectButton]) : _List_Nil,
+		if (model.isThinking) {
+			return $author$project$Main$cpuHandPlaceholder;
+		} else {
+			var myHand = A2(
+				$elm$core$Maybe$withDefault,
+				_List_Nil,
 				A2(
-					$elm$core$List$map,
-					$author$project$Main$handSlot(model),
-					myHand)));
+					$elm$core$Maybe$map,
+					$elm$core$Tuple$second,
+					$elm$core$List$head(
+						A2(
+							$elm$core$List$filter,
+							function (_v1) {
+								var player = _v1.a;
+								return _Utils_eq(player, state.turn);
+							},
+							state.unplaced))));
+			return A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+						A2($elm$html$Html$Attributes$style, 'bottom', '24px'),
+						A2($elm$html$Html$Attributes$style, 'left', '50%'),
+						A2($elm$html$Html$Attributes$style, 'transform', 'translateX(-50%)'),
+						A2($elm$html$Html$Attributes$style, 'background', 'white'),
+						A2($elm$html$Html$Attributes$style, 'border', '1px solid #ddd'),
+						A2($elm$html$Html$Attributes$style, 'border-radius', '12px'),
+						A2($elm$html$Html$Attributes$style, 'padding', '12px'),
+						A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+						A2($elm$html$Html$Attributes$style, 'gap', '12px')
+					]),
+				_Utils_ap(
+					(!_Utils_eq(model.selectedHandPiece, $elm$core$Maybe$Nothing)) ? _List_fromArray(
+						[$author$project$Main$deselectButton]) : _List_Nil,
+					A2(
+						$elm$core$List$map,
+						$author$project$Main$handSlot(model),
+						myHand)));
+		}
 	}
 };
+var $elm$virtual_dom$VirtualDom$node = function (tag) {
+	return _VirtualDom_node(
+		_VirtualDom_noScript(tag));
+};
+var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
+var $author$project$Main$thinkingDotsCss = '\u000A    @keyframes blinkDots {\u000A        0%, 20% { opacity: 0.2; }\u000A        50% { opacity: 1; }\u000A        100% { opacity: 0.2; }\u000A    }\u000A    .thinking-dot {\u000A        animation: blinkDots 1.4s infinite;\u000A    }\u000A    .thinking-dot:nth-child(2) { animation-delay: 0.2s; }\u000A    .thinking-dot:nth-child(3) { animation-delay: 0.4s; }\u000A    ';
 var $author$project$Main$topLeftControls = function (model) {
 	var _v0 = model.gameState;
 	if (_v0.$ === 'Nothing') {
@@ -6544,7 +6616,7 @@ var $author$project$Main$topRightInfo = function (model) {
 					A2($elm$html$Html$Attributes$style, 'border-radius', '12px'),
 					A2($elm$html$Html$Attributes$style, 'padding', '12px 24px'),
 					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-					A2($elm$html$Html$Attributes$style, 'gap', '32px')
+					A2($elm$html$Html$Attributes$style, 'gap', '8px')
 				]),
 			_List_fromArray(
 				[
@@ -6674,6 +6746,14 @@ var $author$project$Main$view = function (model) {
 			]),
 		_List_fromArray(
 			[
+				A3(
+				$elm$html$Html$node,
+				'style',
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text($author$project$Main$thinkingDotsCss)
+					])),
 				$author$project$Main$boardView(model),
 				$author$project$Main$topLeftControls(model),
 				$author$project$Main$topRightInfo(model),
