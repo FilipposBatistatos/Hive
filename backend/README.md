@@ -4,7 +4,7 @@ Functional Programming in rust
 ## Development commands
 Wasm building
 ```bash
-cargo install wasm-pack // To install wasm-pack
+cargo install wasm-pack 
 
 wasm-pack build --target web --out-dir ./app/src/wasm/
 ```

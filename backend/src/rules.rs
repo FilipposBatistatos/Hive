@@ -124,7 +124,6 @@ fn connected_positions(occupied: &HashSet<Position>, start: Position) -> HashSet
 fn preserves_hive(board: &Board, from: Position) -> bool {
     // Does the hive maintain its integrity if this piece is removed from this position
     // Uses DFS to ensure that all the pieces are connected with each other 
-    // TODO: Evaluate performance bottle neck of this approach    
 
     let remaining_pieces: HashSet<Position> = board.stacks
         .keys()
