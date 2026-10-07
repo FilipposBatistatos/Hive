@@ -4,9 +4,7 @@ Hexagonal, infinite-grid chess with bugs.
 
 Chess engines are a common learning project, usually built on minimax with optimisations such as alpha-beta pruning. Hive is a harder target for the same techniques. It has no board, so pieces can be placed anywhere around the growing hive, and its pieces are far more mobile than chess pieces: an Ant can reach dozens of destinations from a single position. That gives the game tree a much larger branching factor, so every optimisation in the engine has a bigger effect on how strong the bot can be.
 
-![Screenshot of the game](docs/screenshot.png)
-
-> **TODO:** add a screenshot or short GIF of a game in progress.
+![Screenshot of the game](docs/screenshots/game_win.gif)
 
 ## Play
 
